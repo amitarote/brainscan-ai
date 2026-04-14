@@ -28,6 +28,9 @@ const Navbar = () => {
             <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
               Contact
             </a>
+            <a href="/tumor-detection" className="text-muted-foreground hover:text-foreground transition-colors">
+              Tumor Detection
+            </a>
             <a href="/risk-assessment">
               <Button>Get Started</Button>
             </a>
