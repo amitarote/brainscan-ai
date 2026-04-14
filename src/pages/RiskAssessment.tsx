@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
-import { Brain, ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Brain, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const countries = [
@@ -18,6 +18,7 @@ const countries = [
 
 const RiskAssessment = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     age: "",
     gender: "",
@@ -33,7 +34,6 @@ const RiskAssessment = () => {
     family_history: "",
     symptom_severity: [5],
   });
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,38 +45,9 @@ const RiskAssessment = () => {
       });
       return;
     }
-    setSubmitted(true);
-    toast({
-      title: "Assessment Submitted",
-      description: "Your risk assessment data has been submitted for analysis.",
-    });
+    navigate("/risk-results", { state: { formData } });
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center">
-          <CardHeader>
-            <div className="mx-auto p-4 rounded-full bg-primary/10 w-fit mb-4">
-              <CheckCircle2 className="h-12 w-12 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Assessment Submitted</CardTitle>
-            <CardDescription>
-              Your brain cancer risk assessment data has been received. Our AI system will analyze the inputs and generate a risk prediction report.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button onClick={() => setSubmitted(false)} variant="outline" className="w-full">
-              Submit Another Assessment
-            </Button>
-            <Link to="/">
-              <Button className="w-full mt-2">Back to Home</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
