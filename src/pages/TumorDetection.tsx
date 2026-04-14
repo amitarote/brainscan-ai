@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { generateTumorPDF } from "@/lib/generatePDF";
+import { saveTumorRecord } from "@/lib/history";
 import { useEffect } from "react";
 
 type DetectionResult = {
@@ -113,7 +114,14 @@ const TumorDetection = () => {
         setStage("Analysis complete");
         setTimeout(() => {
           setAnalyzing(false);
-          setResult(mockDetection());
+          const detection = mockDetection();
+          setResult(detection);
+          saveTumorRecord({
+            tumorDetected: detection.tumorDetected,
+            tumorType: detection.tumorType,
+            confidence: detection.confidence,
+            location: detection.location,
+          });
         }, 500);
       }
     }, 120);
