@@ -35,10 +35,12 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Button size="lg" className="gap-2">
-              Start Risk Assessment
-              <ArrowRight className="h-5 w-5" />
-            </Button>
+            <a href="/risk-assessment">
+              <Button size="lg" className="gap-2">
+                Start Risk Assessment
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </a>
             <Button size="lg" variant="outline" className="bg-secondary-foreground/10 border-secondary-foreground/20 text-secondary-foreground hover:bg-secondary-foreground/20">
               Learn More
             </Button>
