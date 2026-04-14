@@ -19,6 +19,7 @@ import {
   Download,
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
+import { saveRiskRecord } from "@/lib/history";
 
 interface FormData {
   age: string;
@@ -137,6 +138,8 @@ const RiskResults = () => {
 
   useEffect(() => {
     if (!formData) return;
+    // Save to history
+    saveRiskRecord({ age: formData.age, gender: formData.gender, score, riskLevel: risk.label });
     // Animate score
     let current = 0;
     const step = Math.max(1, Math.floor(score / 40));
@@ -150,7 +153,8 @@ const RiskResults = () => {
       setAnimatedScore(current);
     }, 30);
     return () => clearInterval(interval);
-  }, [score, formData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!formData) {
     return (
