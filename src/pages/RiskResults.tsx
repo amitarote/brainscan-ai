@@ -14,6 +14,8 @@ import {
   TrendingUp,
   FileText,
   RotateCcw,
+  ArrowRight,
+  ScanLine,
 } from "lucide-react";
 
 interface FormData {
@@ -319,12 +321,43 @@ const RiskResults = () => {
           </Card>
         </div>
 
+        {/* Stage 2 CTA for high risk */}
+        {score >= 50 && (
+          <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
+            <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <ScanLine className="h-8 w-8 text-primary" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg font-semibold text-foreground">Proceed to Stage 2: Tumor Detection</h3>
+                <p className="text-sm text-muted-foreground">
+                  Your risk score is elevated. We recommend uploading an MRI scan for AI-powered tumor detection and segmentation analysis.
+                </p>
+              </div>
+              <Link to="/tumor-detection">
+                <Button size="lg" className="gap-2 whitespace-nowrap">
+                  Upload MRI Scan
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Button onClick={() => navigate("/risk-assessment")} variant="outline" className="flex-1 gap-2">
             <RotateCcw className="h-4 w-4" />
             New Assessment
           </Button>
+          {score < 50 && (
+            <Link to="/tumor-detection" className="flex-1">
+              <Button variant="outline" className="w-full gap-2">
+                <ScanLine className="h-4 w-4" />
+                Tumor Detection
+              </Button>
+            </Link>
+          )}
           <Link to="/" className="flex-1">
             <Button className="w-full">Back to Home</Button>
           </Link>
