@@ -16,7 +16,9 @@ import {
   RotateCcw,
   ArrowRight,
   ScanLine,
+  Download,
 } from "lucide-react";
+import { generateRiskPDF } from "@/lib/generatePDF";
 
 interface FormData {
   age: string;
@@ -346,6 +348,14 @@ const RiskResults = () => {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
+          <Button
+            onClick={() => generateRiskPDF(formData, score, risk.label)}
+            variant="outline"
+            className="flex-1 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download PDF Report
+          </Button>
           <Button onClick={() => navigate("/risk-assessment")} variant="outline" className="flex-1 gap-2">
             <RotateCcw className="h-4 w-4" />
             New Assessment
