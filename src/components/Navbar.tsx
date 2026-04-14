@@ -28,7 +28,9 @@ const Navbar = () => {
             <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
               Contact
             </a>
-            <Button>Get Started</Button>
+            <a href="/risk-assessment">
+              <Button>Get Started</Button>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -60,7 +62,9 @@ const Navbar = () => {
               <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
                 Contact
               </a>
-              <Button className="w-fit">Get Started</Button>
+              <a href="/risk-assessment">
+                <Button className="w-fit">Get Started</Button>
+              </a>
             </div>
           </div>
         )}
