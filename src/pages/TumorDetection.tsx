@@ -14,8 +14,10 @@ import {
   Target,
   Layers,
   ZoomIn,
+  Download,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { generateTumorPDF } from "@/lib/generatePDF";
 import { useEffect } from "react";
 
 type DetectionResult = {
@@ -360,6 +362,14 @@ const DetectionResults = ({ result, image }: { result: DetectionResult; image: s
             </ul>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Download PDF */}
+      <div className="pt-2">
+        <Button onClick={() => generateTumorPDF(result)} variant="outline" className="w-full gap-2">
+          <Download className="h-4 w-4" />
+          Download Tumor Detection Report (PDF)
+        </Button>
       </div>
     </div>
   );
