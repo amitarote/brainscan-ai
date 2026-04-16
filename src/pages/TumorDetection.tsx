@@ -209,17 +209,20 @@ const TumorDetection = () => {
               </label>
             ) : (
               <div className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden border border-border bg-black/5">
-                  <img src={image} alt="Uploaded MRI" className="w-full max-h-96 object-contain mx-auto" />
+                <div className="relative rounded-xl overflow-hidden border border-border bg-muted/30">
+                  <div className="flex flex-col items-center justify-center py-12 gap-3">
+                    <div className="p-4 rounded-full bg-primary/10">
+                      <Brain className="h-10 w-10 text-primary" />
+                    </div>
+                    <p className="text-foreground font-medium">{fileName}</p>
+                    <p className="text-xs text-muted-foreground">NIfTI MRI file ready for analysis</p>
+                  </div>
                   <button
                     onClick={clearImage}
                     className="absolute top-3 right-3 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-destructive hover:text-destructive-foreground transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border text-xs text-foreground">
-                    {fileName}
-                  </div>
                 </div>
 
                 {!analyzing && !result && (
