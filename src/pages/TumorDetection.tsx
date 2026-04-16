@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -67,8 +68,18 @@ const TumorDetection = () => {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
+  const isValidNii = (file: File) => {
+    const name = file.name.toLowerCase();
+    return name.endsWith(".nii") || name.endsWith(".nii.gz");
+  };
+
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
+    if (!isValidNii(file)) {
+      toast.error("Invalid file format", {
+        description: "Please upload a .nii or .nii.gz MRI file only.",
+      });
+      return;
+    }
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => setImage(e.target?.result as string);
@@ -170,7 +181,7 @@ const TumorDetection = () => {
               <Upload className="h-5 w-5 text-primary" />
               MRI Scan Upload
             </CardTitle>
-            <CardDescription>Upload a brain MRI image (JPEG, PNG, DICOM supported)</CardDescription>
+            <CardDescription>Upload a brain MRI file (.nii or .nii.gz format)</CardDescription>
           </CardHeader>
           <CardContent>
             {!image ? (
@@ -192,23 +203,26 @@ const TumorDetection = () => {
                     <p className="text-foreground font-medium">Drag & drop your MRI scan here</p>
                     <p className="text-sm text-muted-foreground mt-1">or click to browse files</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">Supports JPG, PNG • Max 20MB</p>
+                  <p className="text-xs text-muted-foreground">Supports .nii and .nii.gz files only</p>
                 </div>
-                <input type="file" className="hidden" accept="image/*" onChange={onFileSelect} />
+                <input type="file" className="hidden" accept=".nii,.nii.gz" onChange={onFileSelect} />
               </label>
             ) : (
               <div className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden border border-border bg-black/5">
-                  <img src={image} alt="Uploaded MRI" className="w-full max-h-96 object-contain mx-auto" />
+                <div className="relative rounded-xl overflow-hidden border border-border bg-muted/30">
+                  <div className="flex flex-col items-center justify-center py-12 gap-3">
+                    <div className="p-4 rounded-full bg-primary/10">
+                      <Brain className="h-10 w-10 text-primary" />
+                    </div>
+                    <p className="text-foreground font-medium">{fileName}</p>
+                    <p className="text-xs text-muted-foreground">NIfTI MRI file ready for analysis</p>
+                  </div>
                   <button
                     onClick={clearImage}
                     className="absolute top-3 right-3 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-destructive hover:text-destructive-foreground transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border text-xs text-foreground">
-                    {fileName}
-                  </div>
                 </div>
 
                 {!analyzing && !result && (
