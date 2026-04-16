@@ -359,7 +359,9 @@ const RiskResults = () => {
               </div>
               <div className="mt-4 p-3 rounded-lg bg-accent/30 border border-accent">
                 <p className="text-xs text-muted-foreground">
-                  <strong>Note:</strong> To use the actual ML models, deploy a Python backend (Flask/FastAPI) that loads these .pkl files and exposes a /predict endpoint. The frontend would send the form data to this API and display the real prediction here.
+                  <strong>Note:</strong> {usingMock
+                    ? "Deploy the Flask backend with brain_tumor_model-2.pkl and scaler-2.pkl to get real ML predictions."
+                    : "Predictions are powered by the deployed XGBoost model via the backend API."}
                 </p>
               </div>
             </CardContent>
@@ -374,9 +376,10 @@ const RiskResults = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {[
-                { label: "Model Confidence", value: Math.min(95, 70 + Math.random() * 25) },
+                { label: "Model Confidence", value: mlConfidence ?? Math.min(95, 70 + Math.random() * 25) },
+                { label: "Tumor Probability", value: mlProbabilities?.tumor ?? (score * 0.9) },
+                { label: "No Tumor Probability", value: mlProbabilities?.no_tumor ?? (100 - score * 0.9) },
                 { label: "Data Completeness", value: Object.values(formData).filter((v) => v && (typeof v === "string" ? v.length > 0 : true)).length / 13 * 100 },
-                { label: "Feature Correlation", value: Math.min(98, 60 + Math.random() * 30) },
               ].map((m) => (
                 <div key={m.label}>
                   <div className="flex justify-between text-sm mb-1">
