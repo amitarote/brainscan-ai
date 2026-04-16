@@ -181,7 +181,7 @@ const TumorDetection = () => {
               <Upload className="h-5 w-5 text-primary" />
               MRI Scan Upload
             </CardTitle>
-            <CardDescription>Upload a brain MRI image (JPEG, PNG, DICOM supported)</CardDescription>
+            <CardDescription>Upload a brain MRI file (.nii or .nii.gz format)</CardDescription>
           </CardHeader>
           <CardContent>
             {!image ? (
@@ -203,9 +203,9 @@ const TumorDetection = () => {
                     <p className="text-foreground font-medium">Drag & drop your MRI scan here</p>
                     <p className="text-sm text-muted-foreground mt-1">or click to browse files</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">Supports JPG, PNG • Max 20MB</p>
+                  <p className="text-xs text-muted-foreground">Supports .nii and .nii.gz files only</p>
                 </div>
-                <input type="file" className="hidden" accept="image/*" onChange={onFileSelect} />
+                <input type="file" className="hidden" accept=".nii,.nii.gz" onChange={onFileSelect} />
               </label>
             ) : (
               <div className="space-y-4">
