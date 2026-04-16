@@ -126,21 +126,75 @@ const GaugeChart = ({ score, animatedScore }: { score: number; animatedScore: nu
   );
 };
 
+// Backend URL — update this after deploying your Flask backend
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 const RiskResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const formData = location.state?.formData as FormData | undefined;
   const [animatedScore, setAnimatedScore] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [score, setScore] = useState(0);
+  const [mlConfidence, setMlConfidence] = useState<number | null>(null);
+  const [mlProbabilities, setMlProbabilities] = useState<{ no_tumor: number; tumor: number } | null>(null);
+  const [usingMock, setUsingMock] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const score = formData ? calculateMockRisk(formData) : 0;
   const risk = getRiskLevel(score);
 
   useEffect(() => {
-    if (!formData) return;
-    // Save to history
-    saveRiskRecord({ age: formData.age, gender: formData.gender, score, riskLevel: risk.label });
-    // Animate score
+    if (!formData) { setLoading(false); return; }
+
+    const fetchPrediction = async () => {
+      try {
+        const payload = {
+          age: formData.age,
+          gender: formData.gender,
+          country: formData.country,
+          genetic_risk: formData.genetic_risk[0],
+          smoking_history: formData.smoking_history,
+          alcohol_consumption: formData.alcohol_consumption,
+          radiation_exposure: formData.radiation_exposure,
+          head_injury_history: formData.head_injury_history,
+          chronic_illness: formData.chronic_illness,
+          blood_pressure: formData.blood_pressure,
+          diabetes: formData.diabetes,
+          family_history: formData.family_history,
+          symptom_severity: formData.symptom_severity[0],
+        };
+
+        const res = await fetch(`${BACKEND_URL}/predict-risk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error("Backend error");
+        const result = await res.json();
+        setScore(result.score);
+        setMlConfidence(result.confidence);
+        setMlProbabilities(result.probabilities);
+        setUsingMock(false);
+      } catch {
+        // Fallback to mock scoring
+        const mockScore = calculateMockRisk(formData);
+        setScore(mockScore);
+        setUsingMock(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrediction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Animate score after loading
+  useEffect(() => {
+    if (loading || !formData || score === 0) return;
+    saveRiskRecord({ age: formData.age, gender: formData.gender, score, riskLevel: getRiskLevel(score).label });
+
     let current = 0;
     const step = Math.max(1, Math.floor(score / 40));
     const interval = setInterval(() => {
@@ -154,7 +208,7 @@ const RiskResults = () => {
     }, 30);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading, score]);
 
   if (!formData) {
     return (
@@ -204,11 +258,20 @@ const RiskResults = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+      {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Brain className="h-8 w-8 text-primary animate-spin mr-3" />
+            <span className="text-muted-foreground">Running ML model prediction...</span>
+          </div>
+        )}
+
         {/* Disclaimer */}
         <div className="flex items-center gap-2 p-4 rounded-lg bg-accent/50 border border-accent">
           <AlertTriangle className="h-5 w-5 text-primary shrink-0" />
           <p className="text-sm text-muted-foreground">
-            This is a simulated prediction using mock scoring. In production, this would use the trained ML models (brain_tumor_model.pkl, scaler.pkl, encoders.pkl) via a Python backend API.
+            {usingMock
+              ? "Using simulated scoring (backend unavailable). Deploy the Flask backend with brain_tumor_model-2.pkl for real ML predictions."
+              : "Prediction powered by XGBoost ML model (brain_tumor_model-2.pkl) via the backend API."}
           </p>
         </div>
 
@@ -296,7 +359,9 @@ const RiskResults = () => {
               </div>
               <div className="mt-4 p-3 rounded-lg bg-accent/30 border border-accent">
                 <p className="text-xs text-muted-foreground">
-                  <strong>Note:</strong> To use the actual ML models, deploy a Python backend (Flask/FastAPI) that loads these .pkl files and exposes a /predict endpoint. The frontend would send the form data to this API and display the real prediction here.
+                  <strong>Note:</strong> {usingMock
+                    ? "Deploy the Flask backend with brain_tumor_model-2.pkl and scaler-2.pkl to get real ML predictions."
+                    : "Predictions are powered by the deployed XGBoost model via the backend API."}
                 </p>
               </div>
             </CardContent>
@@ -311,9 +376,10 @@ const RiskResults = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {[
-                { label: "Model Confidence", value: Math.min(95, 70 + Math.random() * 25) },
+                { label: "Model Confidence", value: mlConfidence ?? Math.min(95, 70 + Math.random() * 25) },
+                { label: "Tumor Probability", value: mlProbabilities?.tumor ?? (score * 0.9) },
+                { label: "No Tumor Probability", value: mlProbabilities?.no_tumor ?? (100 - score * 0.9) },
                 { label: "Data Completeness", value: Object.values(formData).filter((v) => v && (typeof v === "string" ? v.length > 0 : true)).length / 13 * 100 },
-                { label: "Feature Correlation", value: Math.min(98, 60 + Math.random() * 30) },
               ].map((m) => (
                 <div key={m.label}>
                   <div className="flex justify-between text-sm mb-1">
