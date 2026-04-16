@@ -68,8 +68,18 @@ const TumorDetection = () => {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
+  const isValidNii = (file: File) => {
+    const name = file.name.toLowerCase();
+    return name.endsWith(".nii") || name.endsWith(".nii.gz");
+  };
+
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
+    if (!isValidNii(file)) {
+      toast.error("Invalid file format", {
+        description: "Please upload a .nii or .nii.gz MRI file only.",
+      });
+      return;
+    }
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => setImage(e.target?.result as string);
