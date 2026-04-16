@@ -126,21 +126,75 @@ const GaugeChart = ({ score, animatedScore }: { score: number; animatedScore: nu
   );
 };
 
+// Backend URL — update this after deploying your Flask backend
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 const RiskResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const formData = location.state?.formData as FormData | undefined;
   const [animatedScore, setAnimatedScore] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [score, setScore] = useState(0);
+  const [mlConfidence, setMlConfidence] = useState<number | null>(null);
+  const [mlProbabilities, setMlProbabilities] = useState<{ no_tumor: number; tumor: number } | null>(null);
+  const [usingMock, setUsingMock] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const score = formData ? calculateMockRisk(formData) : 0;
   const risk = getRiskLevel(score);
 
   useEffect(() => {
-    if (!formData) return;
-    // Save to history
-    saveRiskRecord({ age: formData.age, gender: formData.gender, score, riskLevel: risk.label });
-    // Animate score
+    if (!formData) { setLoading(false); return; }
+
+    const fetchPrediction = async () => {
+      try {
+        const payload = {
+          age: formData.age,
+          gender: formData.gender,
+          country: formData.country,
+          genetic_risk: formData.genetic_risk[0],
+          smoking_history: formData.smoking_history,
+          alcohol_consumption: formData.alcohol_consumption,
+          radiation_exposure: formData.radiation_exposure,
+          head_injury_history: formData.head_injury_history,
+          chronic_illness: formData.chronic_illness,
+          blood_pressure: formData.blood_pressure,
+          diabetes: formData.diabetes,
+          family_history: formData.family_history,
+          symptom_severity: formData.symptom_severity[0],
+        };
+
+        const res = await fetch(`${BACKEND_URL}/predict-risk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error("Backend error");
+        const result = await res.json();
+        setScore(result.score);
+        setMlConfidence(result.confidence);
+        setMlProbabilities(result.probabilities);
+        setUsingMock(false);
+      } catch {
+        // Fallback to mock scoring
+        const mockScore = calculateMockRisk(formData);
+        setScore(mockScore);
+        setUsingMock(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrediction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Animate score after loading
+  useEffect(() => {
+    if (loading || !formData || score === 0) return;
+    saveRiskRecord({ age: formData.age, gender: formData.gender, score, riskLevel: getRiskLevel(score).label });
+
     let current = 0;
     const step = Math.max(1, Math.floor(score / 40));
     const interval = setInterval(() => {
@@ -154,7 +208,7 @@ const RiskResults = () => {
     }, 30);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading, score]);
 
   if (!formData) {
     return (
