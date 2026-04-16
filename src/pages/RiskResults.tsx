@@ -258,11 +258,20 @@ const RiskResults = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+      {loading && (
+          <div className="flex items-center justify-center py-20">
+            <Brain className="h-8 w-8 text-primary animate-spin mr-3" />
+            <span className="text-muted-foreground">Running ML model prediction...</span>
+          </div>
+        )}
+
         {/* Disclaimer */}
         <div className="flex items-center gap-2 p-4 rounded-lg bg-accent/50 border border-accent">
           <AlertTriangle className="h-5 w-5 text-primary shrink-0" />
           <p className="text-sm text-muted-foreground">
-            This is a simulated prediction using mock scoring. In production, this would use the trained ML models (brain_tumor_model.pkl, scaler.pkl, encoders.pkl) via a Python backend API.
+            {usingMock
+              ? "Using simulated scoring (backend unavailable). Deploy the Flask backend with brain_tumor_model-2.pkl for real ML predictions."
+              : "Prediction powered by XGBoost ML model (brain_tumor_model-2.pkl) via the backend API."}
           </p>
         </div>
 
