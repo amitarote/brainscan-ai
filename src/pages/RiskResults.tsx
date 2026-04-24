@@ -17,6 +17,8 @@ import {
   ArrowRight,
   ScanLine,
   Download,
+  Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
