@@ -428,7 +428,113 @@ const RiskResults = () => {
           </div>
         </Card>
 
-        {/* Risk Factor Breakdown */}
+        {/* AI Navigator Panel */}
+        {!loading && score > 0 && (() => {
+          const tier =
+            score > 70
+              ? {
+                  tone: "urgent" as const,
+                  badge: "Urgent Guidance",
+                  badgeClass: "bg-destructive/10 text-destructive border-destructive/30",
+                  ringClass: "border-destructive/40 bg-destructive/5",
+                  iconBg: "bg-destructive/10",
+                  iconColor: "text-destructive",
+                  headline: "I'm escalating this immediately.",
+                  interpretation:
+                    `Your score of ${score}/100 falls in the high-risk band. Multiple compounding factors suggest the value of an MRI-based confirmation without delay.`,
+                  nextAction:
+                    transitioning
+                      ? "Auto-routing you to the MRI uploader now. You can cancel from the overlay if needed."
+                      : "Preparing automatic transition to Stage 2 — Tumor Detection.",
+                  cta: { label: "Go to Upload Now", action: () => navigate("/tumor-detection", { state: { urgent: true, riskScore: score } }) },
+                }
+              : score >= 40
+              ? {
+                  tone: "moderate" as const,
+                  badge: "Empathetic Guidance",
+                  badgeClass: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30",
+                  ringClass: "border-yellow-500/30 bg-yellow-500/5",
+                  iconBg: "bg-yellow-500/10",
+                  iconColor: "text-yellow-500",
+                  headline: "Let's take a closer look — together.",
+                  interpretation:
+                    `A score of ${score}/100 sits in the moderate range. It's not alarming on its own, but a few signals warrant a confirmatory MRI to give you peace of mind and a clearer picture.`,
+                  nextAction:
+                    "I'll open Stage 2 — Tumor Detection — when you're ready. There's no rush; review the breakdown below first if you'd like.",
+                  cta: { label: "Enter Detection Mode", action: () => setShowMediumModal(true) },
+                }
+              : {
+                  tone: "low" as const,
+                  badge: "Supportive Guidance",
+                  badgeClass: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30",
+                  ringClass: "border-green-500/30 bg-green-500/5",
+                  iconBg: "bg-green-500/10",
+                  iconColor: "text-green-500",
+                  headline: "Good news — your profile looks reassuring.",
+                  interpretation:
+                    `Your score of ${score}/100 lands in the low-risk band. Your current factor mix doesn't strongly indicate elevated risk.`,
+                  nextAction:
+                    "No action required today. If you'd like to be thorough, an MRI scan is available as an optional next step.",
+                  cta: { label: "Optional: Run Tumor Detection", action: () => navigate("/tumor-detection") },
+                };
+
+          return (
+            <Card className={`border-2 ${tier.ringClass}`}>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-full ${tier.iconBg} shrink-0 relative`}>
+                    <Sparkles className={`h-6 w-6 ${tier.iconColor}`} />
+                    {tier.tone === "urgent" && (
+                      <span className="absolute inset-0 rounded-full bg-destructive/30 animate-ping" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-3 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        AI Navigator
+                      </span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${tier.badgeClass}`}>
+                        {tier.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">{tier.headline}</h3>
+
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Score interpretation</p>
+                          <p className="text-sm text-foreground">{tier.interpretation}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <ArrowRight className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Next action</p>
+                          <p className="text-sm text-foreground">{tier.nextAction}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        size="sm"
+                        variant={tier.tone === "urgent" ? "destructive" : tier.tone === "low" ? "outline" : "default"}
+                        className="gap-2"
+                        onClick={tier.cta.action}
+                      >
+                        {tier.cta.label}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
+
         <div className={`transition-all duration-500 ${showDetails ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           <Card>
             <CardHeader>
