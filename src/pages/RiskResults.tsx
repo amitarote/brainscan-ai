@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
+import { sayToNavigator } from "@/components/AINavigator";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -312,6 +313,10 @@ const RiskResults = () => {
         description: "AI Navigator is transitioning you to Stage 2 Detection. Please prepare your MRI scan.",
         duration: 6000,
       });
+      sayToNavigator(
+        `Urgent: your Stage 1 score is ${score}/100, which crosses the high-risk threshold. I'm taking you to Stage 2 — Tumor Detection — right now. Please have your MRI (.nii) file ready. You're not alone in this; we'll go step by step.`,
+        { tone: "urgent", open: true },
+      );
 
       const totalMs = 3000;
       const tickMs = 50;

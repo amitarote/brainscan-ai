@@ -9,6 +9,7 @@ import RiskResults from "./pages/RiskResults";
 import TumorDetection from "./pages/TumorDetection";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import AINavigator from "./components/AINavigator";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AINavigator />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
