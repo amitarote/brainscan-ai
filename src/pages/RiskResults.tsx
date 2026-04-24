@@ -151,6 +151,9 @@ const RiskResults = () => {
   const [loading, setLoading] = useState(true);
   const [showMediumModal, setShowMediumModal] = useState(false);
   const [gateTriggered, setGateTriggered] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [transitionProgress, setTransitionProgress] = useState(0);
+  const [transitionStep, setTransitionStep] = useState(0);
 
   const risk = getRiskLevel(score);
 
@@ -227,14 +230,32 @@ const RiskResults = () => {
     if (loading || !formData || score === 0 || gateTriggered) return;
     if (score > 70) {
       setGateTriggered(true);
+      setTransitioning(true);
       toast.error("⚠️ URGENT: High risk detected", {
         description: "AI Navigator is transitioning you to Stage 2 Detection. Please prepare your MRI scan.",
         duration: 6000,
       });
+
+      const totalMs = 3000;
+      const tickMs = 50;
+      const stepBoundaries = [25, 55, 85, 100]; // 4 steps
+      let elapsed = 0;
+      const progressInterval = setInterval(() => {
+        elapsed += tickMs;
+        const pct = Math.min(100, (elapsed / totalMs) * 100);
+        setTransitionProgress(pct);
+        const stepIdx = stepBoundaries.findIndex((b) => pct <= b);
+        setTransitionStep(stepIdx === -1 ? stepBoundaries.length - 1 : stepIdx);
+      }, tickMs);
+
       const t = setTimeout(() => {
+        clearInterval(progressInterval);
         navigate("/tumor-detection", { state: { urgent: true, riskScore: score } });
-      }, 2500);
-      return () => clearTimeout(t);
+      }, totalMs);
+      return () => {
+        clearTimeout(t);
+        clearInterval(progressInterval);
+      };
     }
     if (score >= 40) {
       setGateTriggered(true);
@@ -272,8 +293,81 @@ const RiskResults = () => {
     { label: "Blood Pressure", value: formData.blood_pressure || "Not specified", icon: HeartPulse, impact: formData.blood_pressure === "high" ? "moderate" : "low" },
   ];
 
+  const transitionSteps = [
+    "Analyzing risk profile…",
+    "Activating Stage 2 Detection module…",
+    "Preparing MRI upload interface…",
+    "Redirecting to Tumor Detection…",
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      {/* High-risk auto-navigation overlay */}
+      {transitioning && (
+        <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <Card className="max-w-md w-full border-destructive/40 shadow-2xl">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-destructive/20 animate-ping" />
+                  <div className="relative p-4 rounded-full bg-destructive/10 border border-destructive/30">
+                    <AlertTriangle className="h-10 w-10 text-destructive" />
+                  </div>
+                </div>
+                <h2 className="text-xl font-bold text-foreground">Urgent: High Risk Detected</h2>
+                <p className="text-sm text-muted-foreground">
+                  AI Navigator is routing you to Stage 2 — Tumor Detection.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Progress value={transitionProgress} className="h-2" />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{Math.round(transitionProgress)}%</span>
+                  <span>Step {Math.min(transitionStep + 1, transitionSteps.length)} of {transitionSteps.length}</span>
+                </div>
+              </div>
+
+              <ul className="space-y-2">
+                {transitionSteps.map((label, i) => {
+                  const done = i < transitionStep;
+                  const active = i === transitionStep;
+                  return (
+                    <li key={label} className="flex items-center gap-3 text-sm">
+                      <span
+                        className={`h-2 w-2 rounded-full shrink-0 ${
+                          done ? "bg-green-500" : active ? "bg-destructive animate-pulse" : "bg-muted"
+                        }`}
+                      />
+                      <span
+                        className={
+                          done
+                            ? "text-foreground line-through opacity-70"
+                            : active
+                            ? "text-foreground font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        {label}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => setTransitioning(false)}
+              >
+                Cancel auto-redirect
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4 py-6">
