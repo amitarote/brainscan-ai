@@ -79,60 +79,135 @@ const getRiskLevel = (score: number) => {
   return { label: "Critical Risk", color: "text-red-500", bg: "bg-red-500", desc: "Significant risk factors identified. Immediate specialist consultation strongly recommended." };
 };
 
+// Three-zone gauge classification per spec:
+// Green 0-39 | Yellow 40-69 | Red 70-100
+const getGaugeZone = (score: number) => {
+  if (score >= 70) {
+    return {
+      key: "red" as const,
+      label: "High Risk Detected",
+      sub: "Immediate Stage 2 MRI scan recommended",
+      color: "text-red-500",
+      ring: "ring-red-500/40",
+      glow: "shadow-[0_0_40px_-5px_hsl(0_84%_60%/0.45)]",
+      badge: "bg-red-500/10 text-red-500 border-red-500/30",
+      stroke: "hsl(0, 84%, 60%)",
+    };
+  }
+  if (score >= 40) {
+    return {
+      key: "yellow" as const,
+      label: "Precautionary Review Recommended",
+      sub: "A confirmatory MRI scan is advised",
+      color: "text-yellow-500",
+      ring: "ring-yellow-500/40",
+      glow: "shadow-[0_0_40px_-5px_hsl(48_96%_53%/0.4)]",
+      badge: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
+      stroke: "hsl(48, 96%, 53%)",
+    };
+  }
+  return {
+    key: "green" as const,
+    label: "Low Probability",
+    sub: "No significant indicators — routine monitoring suggested",
+    color: "text-green-500",
+    ring: "ring-green-500/40",
+    glow: "shadow-[0_0_40px_-5px_hsl(142_71%_45%/0.4)]",
+    badge: "bg-green-500/10 text-green-500 border-green-500/30",
+    stroke: "hsl(142, 71%, 45%)",
+  };
+};
+
+// Polar helper for arc paths on a 200x110 viewBox, center (100,100), radius 80
+const polar = (angleDeg: number, r = 80) => {
+  const rad = ((180 - angleDeg) * Math.PI) / 180;
+  return { x: 100 + r * Math.cos(rad), y: 100 - r * Math.sin(rad) };
+};
+const arcPath = (startDeg: number, endDeg: number, r = 80) => {
+  const s = polar(startDeg, r);
+  const e = polar(endDeg, r);
+  const largeArc = endDeg - startDeg > 180 ? 1 : 0;
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 1 ${e.x} ${e.y}`;
+};
+
 const GaugeChart = ({ score, animatedScore }: { score: number; animatedScore: number }) => {
-  const risk = getRiskLevel(score);
+  const zone = getGaugeZone(score);
   const angle = (animatedScore / 100) * 180;
+  const needle = polar(angle, 70);
+
+  // Zone arc segments (degrees on a 0-180 sweep)
+  // Green 0-39 → 0–70.2°, Yellow 40-69 → 70.2–124.2°, Red 70-100 → 124.2–180°
+  const greenEnd = (39 / 100) * 180;
+  const yellowEnd = (69 / 100) * 180;
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-64 h-36 overflow-hidden">
-        {/* Background arc */}
+      <div className={`relative w-72 h-44 overflow-hidden rounded-t-full transition-shadow duration-700 ${zone.glow}`}>
         <svg viewBox="0 0 200 110" className="w-full h-full">
-          <defs>
-            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(142, 71%, 45%)" />
-              <stop offset="33%" stopColor="hsl(48, 96%, 53%)" />
-              <stop offset="66%" stopColor="hsl(25, 95%, 53%)" />
-              <stop offset="100%" stopColor="hsl(0, 84%, 60%)" />
-            </linearGradient>
-          </defs>
-          {/* Track */}
+          {/* Outer track */}
           <path
-            d="M 20 100 A 80 80 0 0 1 180 100"
+            d={arcPath(0, 180)}
             fill="none"
             stroke="hsl(var(--muted))"
-            strokeWidth="14"
+            strokeWidth="16"
             strokeLinecap="round"
+            opacity="0.4"
           />
-          {/* Filled arc */}
-          <path
-            d="M 20 100 A 80 80 0 0 1 180 100"
-            fill="none"
-            stroke="url(#gaugeGrad)"
-            strokeWidth="14"
-            strokeLinecap="round"
-            strokeDasharray={`${(animatedScore / 100) * 251.2} 251.2`}
-            className="transition-all duration-1000 ease-out"
-          />
+          {/* Zone arcs */}
+          <path d={arcPath(0.5, greenEnd)} fill="none" stroke="hsl(142, 71%, 45%)" strokeWidth="14" strokeLinecap="round" opacity={zone.key === "green" ? 1 : 0.35} className="transition-opacity duration-500" />
+          <path d={arcPath(greenEnd + 1, yellowEnd)} fill="none" stroke="hsl(48, 96%, 53%)" strokeWidth="14" strokeLinecap="round" opacity={zone.key === "yellow" ? 1 : 0.35} className="transition-opacity duration-500" />
+          <path d={arcPath(yellowEnd + 1, 179.5)} fill="none" stroke="hsl(0, 84%, 60%)" strokeWidth="14" strokeLinecap="round" opacity={zone.key === "red" ? 1 : 0.35} className="transition-opacity duration-500" />
+
+          {/* Tick marks at zone boundaries */}
+          {[greenEnd, yellowEnd].map((deg) => {
+            const inner = polar(deg, 60);
+            const outer = polar(deg, 88);
+            return (
+              <line
+                key={deg}
+                x1={inner.x}
+                y1={inner.y}
+                x2={outer.x}
+                y2={outer.y}
+                stroke="hsl(var(--background))"
+                strokeWidth="2"
+              />
+            );
+          })}
+
           {/* Needle */}
           <line
             x1="100"
             y1="100"
-            x2={100 + 65 * Math.cos(((180 - angle) * Math.PI) / 180)}
-            y2={100 - 65 * Math.sin(((180 - angle) * Math.PI) / 180)}
-            stroke="hsl(var(--foreground))"
-            strokeWidth="2.5"
+            x2={needle.x}
+            y2={needle.y}
+            stroke={zone.stroke}
+            strokeWidth="3"
             strokeLinecap="round"
             className="transition-all duration-1000 ease-out"
+            style={{ filter: `drop-shadow(0 0 4px ${zone.stroke})` }}
           />
-          <circle cx="100" cy="100" r="5" fill="hsl(var(--foreground))" />
+          <circle cx="100" cy="100" r="7" fill="hsl(var(--background))" stroke={zone.stroke} strokeWidth="2.5" />
+          <circle cx="100" cy="100" r="2.5" fill={zone.stroke} />
         </svg>
+
+        {/* Zone scale labels */}
+        <div className="absolute inset-x-0 bottom-1 flex justify-between px-3 text-[10px] font-medium text-muted-foreground">
+          <span>0</span>
+          <span className="text-green-500">39</span>
+          <span className="text-yellow-500">69</span>
+          <span>100</span>
+        </div>
       </div>
-      <div className="text-center -mt-2">
-        <span className={`text-5xl font-bold ${risk.color}`}>{animatedScore}</span>
+
+      <div className="text-center mt-1">
+        <span className={`text-5xl font-bold tabular-nums ${zone.color} transition-colors duration-500`}>{animatedScore}</span>
         <span className="text-xl text-muted-foreground">/100</span>
       </div>
-      <span className={`text-lg font-semibold mt-2 ${risk.color}`}>{risk.label}</span>
+      <div className={`mt-3 px-4 py-1.5 rounded-full border text-sm font-semibold ${zone.badge} transition-all duration-500`}>
+        {zone.label}
+      </div>
+      <p className="text-xs text-muted-foreground mt-2 text-center max-w-[16rem]">{zone.sub}</p>
     </div>
   );
 };
