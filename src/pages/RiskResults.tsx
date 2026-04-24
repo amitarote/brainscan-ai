@@ -20,6 +20,15 @@ import {
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface FormData {
   age: string;
@@ -140,6 +149,8 @@ const RiskResults = () => {
   const [mlProbabilities, setMlProbabilities] = useState<{ no_tumor: number; tumor: number } | null>(null);
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showMediumModal, setShowMediumModal] = useState(false);
+  const [gateTriggered, setGateTriggered] = useState(false);
 
   const risk = getRiskLevel(score);
 
@@ -209,6 +220,29 @@ const RiskResults = () => {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, score]);
+
+  // Logic Gate: conditional routing based on risk score (0-100 scale)
+  // High >70, Medium 40-70, Low <40
+  useEffect(() => {
+    if (loading || !formData || score === 0 || gateTriggered) return;
+    if (score > 70) {
+      setGateTriggered(true);
+      toast.error("⚠️ URGENT: High risk detected", {
+        description: "AI Navigator is transitioning you to Stage 2 Detection. Please prepare your MRI scan.",
+        duration: 6000,
+      });
+      const t = setTimeout(() => {
+        navigate("/tumor-detection", { state: { urgent: true, riskScore: score } });
+      }, 2500);
+      return () => clearTimeout(t);
+    }
+    if (score >= 40) {
+      setGateTriggered(true);
+      const t = setTimeout(() => setShowMediumModal(true), 1800);
+      return () => clearTimeout(t);
+    }
+    // Low risk: stay on page, discreet button shown below
+  }, [loading, score, gateTriggered, formData, navigate]);
 
   if (!formData) {
     return (
@@ -393,25 +427,43 @@ const RiskResults = () => {
           </Card>
         </div>
 
-        {/* Stage 2 CTA for high risk */}
-        {score >= 50 && (
+        {/* Stage 2 CTA — Logic Gate output */}
+        {score > 70 && (
+          <Card className="border-2 border-destructive/50 bg-destructive/5 animate-pulse">
+            <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-destructive/10">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg font-semibold text-destructive">URGENT — Auto-transitioning to Stage 2</h3>
+                <p className="text-sm text-muted-foreground">
+                  High-risk profile detected. The AI Navigator is routing you to Tumor Detection now.
+                </p>
+              </div>
+              <Link to="/tumor-detection">
+                <Button size="lg" variant="destructive" className="gap-2 whitespace-nowrap">
+                  Go Now <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
+        {score >= 40 && score <= 70 && (
           <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
             <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
               <div className="p-3 rounded-full bg-primary/10">
                 <ScanLine className="h-8 w-8 text-primary" />
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-lg font-semibold text-foreground">Proceed to Stage 2: Tumor Detection</h3>
+                <h3 className="text-lg font-semibold text-foreground">Recommended: Stage 2 Tumor Detection</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your risk score is elevated. We recommend uploading an MRI scan for AI-powered tumor detection and segmentation analysis.
+                  Your risk score is moderate. We recommend uploading an MRI scan for confirmation.
                 </p>
               </div>
-              <Link to="/tumor-detection">
-                <Button size="lg" className="gap-2 whitespace-nowrap">
-                  Upload MRI Scan
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+              <Button size="lg" className="gap-2 whitespace-nowrap" onClick={() => setShowMediumModal(true)}>
+                Enter Detection Mode <ArrowRight className="h-4 w-4" />
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -430,11 +482,11 @@ const RiskResults = () => {
             <RotateCcw className="h-4 w-4" />
             New Assessment
           </Button>
-          {score < 50 && (
+          {score < 40 && (
             <Link to="/tumor-detection" className="flex-1">
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="ghost" className="w-full gap-2 text-muted-foreground hover:text-foreground">
                 <ScanLine className="h-4 w-4" />
-                Tumor Detection
+                Optional: Proceed to Tumor Detection
               </Button>
             </Link>
           )}
@@ -443,6 +495,36 @@ const RiskResults = () => {
           </Link>
         </div>
       </div>
+
+      {/* Medium-Risk Logic Gate Modal */}
+      <Dialog open={showMediumModal} onOpenChange={setShowMediumModal}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="mx-auto p-3 rounded-full bg-yellow-500/10 mb-2">
+              <AlertTriangle className="h-8 w-8 text-yellow-500" />
+            </div>
+            <DialogTitle className="text-center">Moderate Risk Detected</DialogTitle>
+            <DialogDescription className="text-center">
+              Your assessment score ({score}/100) falls in the moderate range. The AI Navigator recommends
+              proceeding to Stage 2 — Tumor Detection — to upload an MRI scan for confirmation.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center gap-2">
+            <Button variant="outline" onClick={() => setShowMediumModal(false)}>
+              Maybe Later
+            </Button>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                setShowMediumModal(false);
+                navigate("/tumor-detection", { state: { recommended: true, riskScore: score } });
+              }}
+            >
+              Enter Detection Mode <ArrowRight className="h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
