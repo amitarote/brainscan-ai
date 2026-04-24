@@ -427,25 +427,43 @@ const RiskResults = () => {
           </Card>
         </div>
 
-        {/* Stage 2 CTA for high risk */}
-        {score >= 50 && (
+        {/* Stage 2 CTA — Logic Gate output */}
+        {score > 70 && (
+          <Card className="border-2 border-destructive/50 bg-destructive/5 animate-pulse">
+            <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-destructive/10">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg font-semibold text-destructive">URGENT — Auto-transitioning to Stage 2</h3>
+                <p className="text-sm text-muted-foreground">
+                  High-risk profile detected. The AI Navigator is routing you to Tumor Detection now.
+                </p>
+              </div>
+              <Link to="/tumor-detection">
+                <Button size="lg" variant="destructive" className="gap-2 whitespace-nowrap">
+                  Go Now <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
+        {score >= 40 && score <= 70 && (
           <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
             <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
               <div className="p-3 rounded-full bg-primary/10">
                 <ScanLine className="h-8 w-8 text-primary" />
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-lg font-semibold text-foreground">Proceed to Stage 2: Tumor Detection</h3>
+                <h3 className="text-lg font-semibold text-foreground">Recommended: Stage 2 Tumor Detection</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your risk score is elevated. We recommend uploading an MRI scan for AI-powered tumor detection and segmentation analysis.
+                  Your risk score is moderate. We recommend uploading an MRI scan for confirmation.
                 </p>
               </div>
-              <Link to="/tumor-detection">
-                <Button size="lg" className="gap-2 whitespace-nowrap">
-                  Upload MRI Scan
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+              <Button size="lg" className="gap-2 whitespace-nowrap" onClick={() => setShowMediumModal(true)}>
+                Enter Detection Mode <ArrowRight className="h-4 w-4" />
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -464,11 +482,11 @@ const RiskResults = () => {
             <RotateCcw className="h-4 w-4" />
             New Assessment
           </Button>
-          {score < 50 && (
+          {score < 40 && (
             <Link to="/tumor-detection" className="flex-1">
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="ghost" className="w-full gap-2 text-muted-foreground hover:text-foreground">
                 <ScanLine className="h-4 w-4" />
-                Tumor Detection
+                Optional: Proceed to Tumor Detection
               </Button>
             </Link>
           )}
