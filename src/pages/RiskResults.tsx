@@ -230,14 +230,32 @@ const RiskResults = () => {
     if (loading || !formData || score === 0 || gateTriggered) return;
     if (score > 70) {
       setGateTriggered(true);
+      setTransitioning(true);
       toast.error("⚠️ URGENT: High risk detected", {
         description: "AI Navigator is transitioning you to Stage 2 Detection. Please prepare your MRI scan.",
         duration: 6000,
       });
+
+      const totalMs = 3000;
+      const tickMs = 50;
+      const stepBoundaries = [25, 55, 85, 100]; // 4 steps
+      let elapsed = 0;
+      const progressInterval = setInterval(() => {
+        elapsed += tickMs;
+        const pct = Math.min(100, (elapsed / totalMs) * 100);
+        setTransitionProgress(pct);
+        const stepIdx = stepBoundaries.findIndex((b) => pct <= b);
+        setTransitionStep(stepIdx === -1 ? stepBoundaries.length - 1 : stepIdx);
+      }, tickMs);
+
       const t = setTimeout(() => {
+        clearInterval(progressInterval);
         navigate("/tumor-detection", { state: { urgent: true, riskScore: score } });
-      }, 2500);
-      return () => clearTimeout(t);
+      }, totalMs);
+      return () => {
+        clearTimeout(t);
+        clearInterval(progressInterval);
+      };
     }
     if (score >= 40) {
       setGateTriggered(true);
