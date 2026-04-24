@@ -20,6 +20,15 @@ import {
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface FormData {
   age: string;
