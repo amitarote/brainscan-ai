@@ -151,6 +151,9 @@ const RiskResults = () => {
   const [loading, setLoading] = useState(true);
   const [showMediumModal, setShowMediumModal] = useState(false);
   const [gateTriggered, setGateTriggered] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [transitionProgress, setTransitionProgress] = useState(0);
+  const [transitionStep, setTransitionStep] = useState(0);
 
   const risk = getRiskLevel(score);
 
