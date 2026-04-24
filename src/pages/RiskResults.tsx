@@ -149,6 +149,8 @@ const RiskResults = () => {
   const [mlProbabilities, setMlProbabilities] = useState<{ no_tumor: number; tumor: number } | null>(null);
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showMediumModal, setShowMediumModal] = useState(false);
+  const [gateTriggered, setGateTriggered] = useState(false);
 
   const risk = getRiskLevel(score);
 
