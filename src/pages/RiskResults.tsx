@@ -221,6 +221,29 @@ const RiskResults = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, score]);
 
+  // Logic Gate: conditional routing based on risk score (0-100 scale)
+  // High >70, Medium 40-70, Low <40
+  useEffect(() => {
+    if (loading || !formData || score === 0 || gateTriggered) return;
+    if (score > 70) {
+      setGateTriggered(true);
+      toast.error("⚠️ URGENT: High risk detected", {
+        description: "AI Navigator is transitioning you to Stage 2 Detection. Please prepare your MRI scan.",
+        duration: 6000,
+      });
+      const t = setTimeout(() => {
+        navigate("/tumor-detection", { state: { urgent: true, riskScore: score } });
+      }, 2500);
+      return () => clearTimeout(t);
+    }
+    if (score >= 40) {
+      setGateTriggered(true);
+      const t = setTimeout(() => setShowMediumModal(true), 1800);
+      return () => clearTimeout(t);
+    }
+    // Low risk: stay on page, discreet button shown below
+  }, [loading, score, gateTriggered, formData, navigate]);
+
   if (!formData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
