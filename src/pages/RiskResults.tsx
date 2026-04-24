@@ -495,6 +495,36 @@ const RiskResults = () => {
           </Link>
         </div>
       </div>
+
+      {/* Medium-Risk Logic Gate Modal */}
+      <Dialog open={showMediumModal} onOpenChange={setShowMediumModal}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="mx-auto p-3 rounded-full bg-yellow-500/10 mb-2">
+              <AlertTriangle className="h-8 w-8 text-yellow-500" />
+            </div>
+            <DialogTitle className="text-center">Moderate Risk Detected</DialogTitle>
+            <DialogDescription className="text-center">
+              Your assessment score ({score}/100) falls in the moderate range. The AI Navigator recommends
+              proceeding to Stage 2 — Tumor Detection — to upload an MRI scan for confirmation.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center gap-2">
+            <Button variant="outline" onClick={() => setShowMediumModal(false)}>
+              Maybe Later
+            </Button>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                setShowMediumModal(false);
+                navigate("/tumor-detection", { state: { recommended: true, riskScore: score } });
+              }}
+            >
+              Enter Detection Mode <ArrowRight className="h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
