@@ -322,7 +322,10 @@ const RiskAssessment = () => {
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Blood Pressure</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Blood Pressure</Label>
+                  <InfoTip {...TIPS.blood_pressure} label="Why we ask about blood pressure" />
+                </div>
                 <Select onValueChange={(v) => setFormData({ ...formData, blood_pressure: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select level" />
@@ -336,7 +339,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Diabetes</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Diabetes</Label>
+                  <InfoTip {...TIPS.diabetes} label="Why we ask about diabetes" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, diabetes: v })}
                   className="flex gap-4 pt-1"
@@ -353,7 +359,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Family History of Cancer</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Family History of Cancer</Label>
+                  <InfoTip {...TIPS.family_history} label="Why we ask about family history" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, family_history: v })}
                   className="flex gap-4 pt-1"
@@ -370,7 +379,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Symptom Severity (1-10)</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Symptom Severity (1-10)</Label>
+                  <InfoTip {...TIPS.symptom_severity} label="Why we ask about symptom severity" />
+                </div>
                 <div className="pt-2">
                   <Slider
                     value={formData.symptom_severity}
