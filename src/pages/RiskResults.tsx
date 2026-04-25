@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -19,19 +20,13 @@ import {
   Download,
   Sparkles,
   MessageCircle,
+  X,
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
 import { sayToNavigator } from "@/components/AINavigator";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import Stage2Viewer from "@/components/Stage2Viewer";
 
 interface FormData {
   age: string;
@@ -382,73 +377,112 @@ const RiskResults = () => {
     "Redirecting to Tumor Detection…",
   ];
 
+  // Normalized risk score (0.0 – 1.0) per spec
+  const riskScore = score / 100;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* High-risk auto-navigation overlay */}
-      {transitioning && (
-        <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <Card className="max-w-md w-full border-destructive/40 shadow-2xl">
-            <CardContent className="p-8 space-y-6">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-destructive/20 animate-ping" />
-                  <div className="relative p-4 rounded-full bg-destructive/10 border border-destructive/30">
-                    <AlertTriangle className="h-10 w-10 text-destructive" />
+      {/* ────────────────────────────────────────────────────────────
+          HIGH RISK (>0.7): Auto-elevation to Stage 2 — antigravity float
+      ──────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {transitioning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl"
+            style={{
+              background:
+                "radial-gradient(circle at 30% 20%, rgba(34,211,238,0.15), transparent 50%), radial-gradient(circle at 70% 80%, rgba(168,85,247,0.18), transparent 50%), rgba(10,15,30,0.92)",
+            }}
+          >
+            <motion.div
+              initial={{ y: 60, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -40, opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-4xl"
+            >
+              {/* Status banner */}
+              <motion.div
+                animate={{ y: [0, -3, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="mb-4 flex items-center justify-between rounded-2xl border border-red-500/40 bg-[#0a0f1e]/80 backdrop-blur-md px-5 py-3 shadow-[0_0_40px_rgba(239,68,68,0.25)]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-red-500/40 animate-ping" />
+                    <div className="relative h-8 w-8 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center">
+                      <AlertTriangle className="h-4 w-4 text-red-400" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-400/90">
+                      Auto-elevation engaged
+                    </div>
+                    <div className="text-sm font-medium text-white">
+                      High risk detected — entering Stage 2
+                    </div>
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-foreground">Urgent: High Risk Detected</h2>
-                <p className="text-sm text-muted-foreground">
-                  AI Navigator is routing you to Stage 2 — Tumor Detection.
-                </p>
-              </div>
+                <button
+                  onClick={() => setTransitioning(false)}
+                  className="h-8 w-8 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors flex items-center justify-center"
+                  aria-label="Cancel auto-redirect"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </motion.div>
 
-              <div className="space-y-2">
-                <Progress value={transitionProgress} className="h-2" />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{Math.round(transitionProgress)}%</span>
-                  <span>Step {Math.min(transitionStep + 1, transitionSteps.length)} of {transitionSteps.length}</span>
+              {/* Live Stage 2 Viewer preview */}
+              <Stage2Viewer confidence={riskScore} />
+
+              {/* Progress + steps */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.7 }}
+                className="mt-4 rounded-2xl border border-cyan-400/15 bg-[#0a0f1e]/80 backdrop-blur-md p-5 space-y-3 shadow-[0_0_30px_rgba(34,211,238,0.12)]"
+              >
+                <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-cyan-300/80">
+                  <span>Routing to Tumor Detection</span>
+                  <span className="font-mono">{Math.round(transitionProgress)}%</span>
                 </div>
-              </div>
-
-              <ul className="space-y-2">
-                {transitionSteps.map((label, i) => {
-                  const done = i < transitionStep;
-                  const active = i === transitionStep;
-                  return (
-                    <li key={label} className="flex items-center gap-3 text-sm">
+                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-purple-400 to-red-400"
+                    style={{ width: `${transitionProgress}%`, boxShadow: "0 0 12px rgba(168,85,247,0.6)" }}
+                    transition={{ ease: "linear" }}
+                  />
+                </div>
+                <div className="flex flex-wrap gap-3 text-[11px] text-white/70">
+                  {transitionSteps.map((label, i) => {
+                    const done = i < transitionStep;
+                    const active = i === transitionStep;
+                    return (
                       <span
-                        className={`h-2 w-2 rounded-full shrink-0 ${
-                          done ? "bg-green-500" : active ? "bg-destructive animate-pulse" : "bg-muted"
+                        key={label}
+                        className={`flex items-center gap-1.5 ${
+                          done ? "text-emerald-400" : active ? "text-cyan-300" : "text-white/30"
                         }`}
-                      />
-                      <span
-                        className={
-                          done
-                            ? "text-foreground line-through opacity-70"
-                            : active
-                            ? "text-foreground font-medium"
-                            : "text-muted-foreground"
-                        }
                       >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            done ? "bg-emerald-400" : active ? "bg-cyan-300 animate-pulse" : "bg-white/20"
+                          }`}
+                        />
                         {label}
                       </span>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setTransitioning(false)}
-              >
-                Cancel auto-redirect
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Header */}
       <div className="bg-secondary border-b border-border">
@@ -778,35 +812,118 @@ const RiskResults = () => {
         </div>
       </div>
 
-      {/* Medium-Risk Logic Gate Modal */}
-      <Dialog open={showMediumModal} onOpenChange={setShowMediumModal}>
-        <DialogContent>
-          <DialogHeader>
-            <div className="mx-auto p-3 rounded-full bg-yellow-500/10 mb-2">
-              <AlertTriangle className="h-8 w-8 text-yellow-500" />
-            </div>
-            <DialogTitle className="text-center">Moderate Risk Detected</DialogTitle>
-            <DialogDescription className="text-center">
-              Your assessment score ({score}/100) falls in the moderate range. The AI Navigator recommends
-              proceeding to Stage 2 — Tumor Detection — to upload an MRI scan for confirmation.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="sm:justify-center gap-2">
-            <Button variant="outline" onClick={() => setShowMediumModal(false)}>
-              Maybe Later
-            </Button>
-            <Button
-              className="gap-2"
-              onClick={() => {
-                setShowMediumModal(false);
-                navigate("/tumor-detection", { state: { recommended: true, riskScore: score } });
+      {/* ────────────────────────────────────────────────────────────
+          MODERATE RISK (0.4 – 0.7): Antigravity float-in modal
+      ──────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showMediumModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            onClick={() => setShowMediumModal(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 50%, rgba(168,85,247,0.15), transparent 60%), rgba(10,15,30,0.85)",
+            }}
+          >
+            <motion.div
+              initial={{ y: 80, opacity: 0, scale: 0.92 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 40, opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md rounded-3xl border border-cyan-400/20 bg-[#0a0f1e]/90 backdrop-blur-2xl p-7 text-center"
+              style={{
+                boxShadow:
+                  "0 30px 80px -20px rgba(34,211,238,0.35), 0 0 0 1px rgba(168,85,247,0.15) inset",
               }}
             >
-              Enter Detection Mode <ArrowRight className="h-4 w-4" />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-cyan-500/20 blur-3xl pointer-events-none"
+              />
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"
+              />
+
+              <button
+                onClick={() => setShowMediumModal(false)}
+                className="absolute top-3 right-3 h-8 w-8 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className="mx-auto mb-4 h-16 w-16 rounded-2xl border border-yellow-400/40 bg-yellow-500/10 flex items-center justify-center shadow-[0_0_30px_rgba(234,179,8,0.35)]"
+              >
+                <AlertTriangle className="h-7 w-7 text-yellow-400" />
+              </motion.div>
+
+              <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan-300/80 mb-2">
+                Moderate Risk · {riskScore.toFixed(2)}
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                A confirmatory MRI is recommended
+              </h3>
+              <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                Your score sits between 0.40 and 0.70. The AI Navigator suggests
+                proceeding to Stage 2 — Tumor Detection — to upload an MRI scan
+                for confirmation. There's no urgency; review your breakdown first if you'd like.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-white/15 bg-transparent text-white/80 hover:bg-white/5 hover:text-white"
+                  onClick={() => setShowMediumModal(false)}
+                >
+                  Maybe Later
+                </Button>
+                <Button
+                  className="flex-1 gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-[0_0_20px_rgba(168,85,247,0.45)]"
+                  onClick={() => {
+                    setShowMediumModal(false);
+                    navigate("/tumor-detection", { state: { recommended: true, riskScore: score } });
+                  }}
+                >
+                  Enter Detection Mode <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ────────────────────────────────────────────────────────────
+          LOW RISK (<0.4): Static, subtle floating access button
+      ──────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {!loading && score > 0 && riskScore < 0.4 && (
+          <motion.button
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ delay: 1.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/tumor-detection")}
+            className="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full border border-cyan-400/25 bg-[#0a0f1e]/80 backdrop-blur-md px-4 py-2.5 text-xs text-cyan-100/90 hover:text-white hover:border-cyan-400/50 transition-colors"
+            style={{ boxShadow: "0 10px 30px -10px rgba(34,211,238,0.3)" }}
+          >
+            <ScanLine className="h-3.5 w-3.5" />
+            <span>Optional MRI scan</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
