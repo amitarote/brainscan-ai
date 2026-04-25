@@ -16,11 +16,19 @@ import {
   Layers,
   ZoomIn,
   Download,
+  Bot,
+  Stethoscope,
+  Activity,
+  Ruler,
+  MapPin,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { generateTumorPDF } from "@/lib/generatePDF";
 import { saveTumorRecord } from "@/lib/history";
 import { useEffect } from "react";
+import { sayToNavigator } from "@/components/AINavigator";
 
 type DetectionResult = {
   tumorDetected: boolean;
