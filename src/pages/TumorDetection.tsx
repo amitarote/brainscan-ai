@@ -195,7 +195,7 @@ const TumorDetection = () => {
       </div>
 
       <div
-        className={`container mx-auto px-4 py-8 max-w-4xl space-y-8 transition-all duration-700 ease-out ${
+        className={`container mx-auto px-4 py-8 ${result ? "max-w-7xl" : "max-w-4xl"} space-y-8 transition-all duration-700 ease-out ${
           pageVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
         }`}
       >
