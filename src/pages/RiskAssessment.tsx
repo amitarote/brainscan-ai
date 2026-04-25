@@ -199,7 +199,10 @@ const RiskAssessment = () => {
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Genetic Risk Score</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Genetic Risk Score</Label>
+                  <InfoTip {...TIPS.genetic_risk} label="Why we ask about genetic risk" />
+                </div>
                 <div className="pt-2">
                   <Slider
                     value={formData.genetic_risk}
@@ -212,7 +215,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Smoking History</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Smoking History</Label>
+                  <InfoTip {...TIPS.smoking} label="Why we ask about smoking" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, smoking_history: v })}
                   className="flex gap-4 pt-1"
@@ -229,7 +235,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Alcohol Consumption</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Alcohol Consumption</Label>
+                  <InfoTip {...TIPS.alcohol} label="Why we ask about alcohol" />
+                </div>
                 <Select onValueChange={(v) => setFormData({ ...formData, alcohol_consumption: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select level" />
@@ -244,7 +253,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Radiation Exposure</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Radiation Exposure</Label>
+                  <InfoTip {...TIPS.radiation} label="Why we ask about radiation exposure" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, radiation_exposure: v })}
                   className="flex gap-4 pt-1"
@@ -261,7 +273,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Head Injury History</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Head Injury History</Label>
+                  <InfoTip {...TIPS.head_injury} label="Why we ask about head injury" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, head_injury_history: v })}
                   className="flex gap-4 pt-1"
@@ -278,7 +293,10 @@ const RiskAssessment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Chronic Illness</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Chronic Illness</Label>
+                  <InfoTip {...TIPS.chronic_illness} label="Why we ask about chronic illness" />
+                </div>
                 <RadioGroup
                   onValueChange={(v) => setFormData({ ...formData, chronic_illness: v })}
                   className="flex gap-4 pt-1"
