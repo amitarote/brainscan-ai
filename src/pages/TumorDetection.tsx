@@ -43,12 +43,16 @@ type DetectionResult = {
 const mockDetection = (): DetectionResult => {
   const detected = Math.random() > 0.3;
   const types = ["Glioma", "Meningioma", "Pituitary Adenoma"];
-  const locations = ["Frontal Lobe", "Temporal Lobe", "Parietal Lobe", "Cerebellum"];
+  const sides = ["Right", "Left"];
+  const lobes = ["Frontal Lobe", "Temporal Lobe", "Parietal Lobe", "Cerebellum"];
+  const location = detected
+    ? `${sides[Math.floor(Math.random() * sides.length)]} ${lobes[Math.floor(Math.random() * lobes.length)]}`
+    : "N/A";
   return {
     tumorDetected: detected,
     tumorType: detected ? types[Math.floor(Math.random() * types.length)] : "N/A",
     confidence: detected ? 85 + Math.random() * 13 : 92 + Math.random() * 7,
-    location: detected ? locations[Math.floor(Math.random() * locations.length)] : "N/A",
+    location,
     size: detected ? `${(0.8 + Math.random() * 3.5).toFixed(1)} cm` : "N/A",
     recommendations: detected
       ? ["Consult a neuro-oncologist immediately", "Schedule a contrast-enhanced MRI", "Consider biopsy for histological confirmation", "Discuss treatment options with care team"]
