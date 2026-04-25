@@ -67,6 +67,12 @@ const TumorDetection = () => {
   const [stage, setStage] = useState("");
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [pageVisible, setPageVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPageVisible(true), 50);
+    return () => clearTimeout(t);
+  }, []);
 
   const isValidNii = (file: File) => {
     const name = file.name.toLowerCase();
