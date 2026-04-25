@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -19,19 +20,13 @@ import {
   Download,
   Sparkles,
   MessageCircle,
+  X,
 } from "lucide-react";
 import { generateRiskPDF } from "@/lib/generatePDF";
 import { saveRiskRecord } from "@/lib/history";
 import { sayToNavigator } from "@/components/AINavigator";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import Stage2Viewer from "@/components/Stage2Viewer";
 
 interface FormData {
   age: string;
