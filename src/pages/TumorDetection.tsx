@@ -171,7 +171,11 @@ const TumorDetection = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+      <div
+        className={`container mx-auto px-4 py-8 max-w-4xl space-y-8 transition-all duration-700 ease-out ${
+          pageVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+        }`}
+      >
         {/* Disclaimer */}
         <div className="flex items-center gap-2 p-4 rounded-lg bg-accent/50 border border-accent">
           <AlertTriangle className="h-5 w-5 text-primary shrink-0" />
