@@ -151,6 +151,17 @@ const TumorDetection = () => {
             confidence: detection.confidence,
             location: detection.location,
           });
+          if (detection.tumorDetected) {
+            sayToNavigator(
+              `I've identified a ${detection.tumorType} in the ${detection.location} with ${detection.confidence.toFixed(1)}% confidence. The next step is a specialist consult — I recommend a neuro-oncologist within 7 days.`,
+              { tone: "urgent", open: true },
+            );
+          } else {
+            sayToNavigator(
+              `Good news — no tumor signature was detected (${detection.confidence.toFixed(1)}% confidence). Continue routine screening and revisit if new symptoms appear.`,
+              { tone: "supportive", open: false },
+            );
+          }
         }, 500);
       }
     }, 120);
