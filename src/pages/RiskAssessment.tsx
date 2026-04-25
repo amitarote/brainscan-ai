@@ -142,7 +142,10 @@ const RiskAssessment = () => {
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="age">Age *</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="age">Age *</Label>
+                  <InfoTip {...TIPS.age} label="Why we ask about age" />
+                </div>
                 <Input
                   id="age"
                   type="number"
@@ -154,7 +157,10 @@ const RiskAssessment = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Gender *</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Gender *</Label>
+                  <InfoTip {...TIPS.gender} label="Why we ask about gender" />
+                </div>
                 <Select onValueChange={(v) => setFormData({ ...formData, gender: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
@@ -167,7 +173,10 @@ const RiskAssessment = () => {
                 </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label>Country *</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label>Country *</Label>
+                  <InfoTip {...TIPS.country} label="Why we ask about country" />
+                </div>
                 <Select onValueChange={(v) => setFormData({ ...formData, country: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select country" />
