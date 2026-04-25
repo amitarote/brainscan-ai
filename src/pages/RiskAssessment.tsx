@@ -9,6 +9,63 @@ import { Slider } from "@/components/ui/slider";
 import { Brain, ArrowLeft, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import InfoTip from "@/components/InfoTip";
+
+// Tooltip copy: explains why each factor matters for the Stage 1 risk score.
+const TIPS = {
+  age: {
+    why: "Brain tumor incidence rises with age, especially after 45. Younger patients have different tumor profiles.",
+    indicates: "Higher age (>45) adds weight to the Stage 1 score; >60 contributes the maximum age-related signal.",
+  },
+  gender: {
+    why: "Some tumor types (e.g. meningiomas) are more common in women, while gliomas are slightly more common in men.",
+    indicates: "Used by the model to calibrate baseline probability; not a direct positive/negative signal.",
+  },
+  country: {
+    why: "Regional differences in environmental exposure, screening access, and reporting affect baseline risk.",
+    indicates: "Helps the model adjust for population-level prevalence; not a direct risk multiplier.",
+  },
+  genetic_risk: {
+    why: "Inherited mutations (NF1, NF2, Li-Fraumeni, Turcot) significantly raise brain tumor risk.",
+    indicates: "Scores >50% materially raise the Stage 1 result; >75% is treated as a strong contributing factor.",
+  },
+  smoking: {
+    why: "Smoking is linked to several cancers and may modestly elevate brain tumor risk through systemic effects.",
+    indicates: "A 'Yes' adds a moderate weight to the Stage 1 score.",
+  },
+  alcohol: {
+    why: "Heavy alcohol use is associated with increased general cancer risk and may compound other factors.",
+    indicates: "'Heavy' contributes more than 'Moderate'; 'None' or 'Light' add no weight.",
+  },
+  radiation: {
+    why: "Prior ionizing radiation to the head (e.g. childhood radiotherapy) is one of the few well-established environmental causes of brain tumors.",
+    indicates: "A 'Yes' is a strong contributor to the Stage 1 score.",
+  },
+  head_injury: {
+    why: "Severe or repeated head trauma has been weakly associated with later tumor development in some studies.",
+    indicates: "A 'Yes' adds a small contribution to the Stage 1 score.",
+  },
+  chronic_illness: {
+    why: "Chronic conditions can affect immune surveillance and overall cancer susceptibility.",
+    indicates: "A 'Yes' adds a small contribution to the Stage 1 score.",
+  },
+  blood_pressure: {
+    why: "Hypertension is correlated with vascular changes that some studies link to glioma risk.",
+    indicates: "'High' adds a moderate contribution; 'Normal' or 'Low' add none.",
+  },
+  diabetes: {
+    why: "Diabetes affects metabolism and inflammation, which may interact with tumor biology.",
+    indicates: "A 'Yes' adds a small contribution to the Stage 1 score.",
+  },
+  family_history: {
+    why: "A first-degree relative with brain or other cancers can indicate inherited susceptibility.",
+    indicates: "A 'Yes' is one of the strongest non-genetic-test contributors to the Stage 1 score.",
+  },
+  symptom_severity: {
+    why: "Persistent headaches, seizures, vision changes, or cognitive issues can be early warning signs.",
+    indicates: "Severity >7/10 substantially raises the Stage 1 score; mild symptoms add little.",
+  },
+} as const;
 
 const countries = [
   "United States", "United Kingdom", "Canada", "Australia", "India",
