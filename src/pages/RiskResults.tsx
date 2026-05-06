@@ -917,10 +917,10 @@ const RiskResults = () => {
               <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan-300/80 mb-2">
                 Moderate Risk · {riskScore.toFixed(2)}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 id="medium-risk-title" className="text-xl font-semibold text-white mb-2">
                 A confirmatory MRI is recommended
               </h3>
-              <p className="text-sm text-white/60 mb-6 leading-relaxed">
+              <p id="medium-risk-desc" className="text-sm text-white/60 mb-6 leading-relaxed">
                 Your score sits between 0.40 and 0.70. The AI Navigator suggests
                 proceeding to Stage 2 — Tumor Detection — to upload an MRI scan
                 for confirmation. There's no urgency; review your breakdown first if you'd like.
