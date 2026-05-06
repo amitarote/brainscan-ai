@@ -474,6 +474,10 @@ const RiskResults = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="high-risk-title"
+            aria-describedby="high-risk-desc"
             style={{
               background:
                 "radial-gradient(circle at 30% 20%, rgba(34,211,238,0.15), transparent 50%), radial-gradient(circle at 70% 80%, rgba(168,85,247,0.18), transparent 50%), rgba(10,15,30,0.92)",
