@@ -537,7 +537,14 @@ const RiskResults = () => {
                   <span>Routing to Tumor Detection</span>
                   <span className="font-mono">{Math.round(transitionProgress)}%</span>
                 </div>
-                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                <div
+                  className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden"
+                  role="progressbar"
+                  aria-label="Stage 2 transition progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(transitionProgress)}
+                >
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-purple-400 to-red-400"
                     style={{ width: `${transitionProgress}%`, boxShadow: "0 0 12px rgba(168,85,247,0.6)" }}
