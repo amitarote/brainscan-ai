@@ -224,6 +224,46 @@ const RiskResults = () => {
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showMediumModal, setShowMediumModal] = useState(false);
+  const mediumModalRef = useRef<HTMLDivElement>(null);
+  const mediumPrimaryBtnRef = useRef<HTMLButtonElement>(null);
+  const mediumTriggerRef = useRef<HTMLElement | null>(null);
+
+  // A11y: Escape to close, focus trap, return focus to trigger on close
+  useEffect(() => {
+    if (!showMediumModal) return;
+    mediumTriggerRef.current = document.activeElement as HTMLElement;
+    const t = setTimeout(() => mediumPrimaryBtnRef.current?.focus(), 50);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setShowMediumModal(false);
+      } else if (e.key === "Tab" && mediumModalRef.current) {
+        const focusables = mediumModalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = prevOverflow;
+      mediumTriggerRef.current?.focus?.();
+    };
+  }, [showMediumModal]);
   const [gateTriggered, setGateTriggered] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
