@@ -275,7 +275,21 @@ const RiskResults = () => {
   // A11y for high-risk transition overlay
   useEffect(() => {
     if (!transitioning) return;
-    transitionTriggerRef.current = document.activeElement as HTMLElement;
+
+    // Capture the precise element that triggered the overlay.
+    // The overlay opens via a useEffect (auto-elevation), so the active
+    // element may be <body>. Prefer the most recently focused interactive
+    // element; otherwise fall back to the page's main heading.
+    const active = document.activeElement as HTMLElement | null;
+    const isMeaningful =
+      active &&
+      active !== document.body &&
+      active.tagName !== "HTML" &&
+      typeof active.focus === "function";
+    transitionTriggerRef.current =
+      (isMeaningful ? active : null) ??
+      (document.getElementById("risk-results-title") as HTMLElement | null);
+
     const t = setTimeout(() => transitionCancelBtnRef.current?.focus(), 50);
 
     const handleKey = (e: KeyboardEvent) => {
@@ -305,7 +319,21 @@ const RiskResults = () => {
       clearTimeout(t);
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = prevOverflow;
-      transitionTriggerRef.current?.focus?.();
+
+      // Only restore if the trigger is still in the DOM. If the overlay
+      // closed due to navigation, this component will unmount and the
+      // restoration is a no-op (the destination page owns focus).
+      const target = transitionTriggerRef.current;
+      if (target && target.isConnected) {
+        // Defer to next frame so any exit animations / re-renders settle.
+        requestAnimationFrame(() => {
+          try {
+            target.focus({ preventScroll: false });
+          } catch {
+            document.getElementById("risk-results-title")?.focus();
+          }
+        });
+      }
     };
   }, [transitioning]);
 
