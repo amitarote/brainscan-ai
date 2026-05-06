@@ -268,6 +268,46 @@ const RiskResults = () => {
   const [transitioning, setTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
   const [transitionStep, setTransitionStep] = useState(0);
+  const transitionDialogRef = useRef<HTMLDivElement>(null);
+  const transitionCancelBtnRef = useRef<HTMLButtonElement>(null);
+  const transitionTriggerRef = useRef<HTMLElement | null>(null);
+
+  // A11y for high-risk transition overlay
+  useEffect(() => {
+    if (!transitioning) return;
+    transitionTriggerRef.current = document.activeElement as HTMLElement;
+    const t = setTimeout(() => transitionCancelBtnRef.current?.focus(), 50);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setTransitioning(false);
+      } else if (e.key === "Tab" && transitionDialogRef.current) {
+        const focusables = transitionDialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = prevOverflow;
+      transitionTriggerRef.current?.focus?.();
+    };
+  }, [transitioning]);
 
   const risk = getRiskLevel(score);
 
