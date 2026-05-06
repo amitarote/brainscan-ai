@@ -268,6 +268,46 @@ const RiskResults = () => {
   const [transitioning, setTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
   const [transitionStep, setTransitionStep] = useState(0);
+  const transitionDialogRef = useRef<HTMLDivElement>(null);
+  const transitionCancelBtnRef = useRef<HTMLButtonElement>(null);
+  const transitionTriggerRef = useRef<HTMLElement | null>(null);
+
+  // A11y for high-risk transition overlay
+  useEffect(() => {
+    if (!transitioning) return;
+    transitionTriggerRef.current = document.activeElement as HTMLElement;
+    const t = setTimeout(() => transitionCancelBtnRef.current?.focus(), 50);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setTransitioning(false);
+      } else if (e.key === "Tab" && transitionDialogRef.current) {
+        const focusables = transitionDialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = prevOverflow;
+      transitionTriggerRef.current?.focus?.();
+    };
+  }, [transitioning]);
 
   const risk = getRiskLevel(score);
 
@@ -434,12 +474,17 @@ const RiskResults = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="high-risk-title"
+            aria-describedby="high-risk-desc"
             style={{
               background:
                 "radial-gradient(circle at 30% 20%, rgba(34,211,238,0.15), transparent 50%), radial-gradient(circle at 70% 80%, rgba(168,85,247,0.18), transparent 50%), rgba(10,15,30,0.92)",
             }}
           >
             <motion.div
+              ref={transitionDialogRef}
               initial={{ y: 60, opacity: 0, scale: 0.95 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -40, opacity: 0, scale: 0.96 }}
@@ -460,20 +505,21 @@ const RiskResults = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-400/90">
+                    <div id="high-risk-title" className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-400/90">
                       Auto-elevation engaged
                     </div>
-                    <div className="text-sm font-medium text-white">
+                    <div id="high-risk-desc" className="text-sm font-medium text-white">
                       High risk detected — entering Stage 2
                     </div>
                   </div>
                 </div>
                 <button
+                  ref={transitionCancelBtnRef}
                   onClick={() => setTransitioning(false)}
                   className="h-8 w-8 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors flex items-center justify-center"
-                  aria-label="Cancel auto-redirect"
+                  aria-label="Cancel automatic redirect to Stage 2"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </motion.div>
 
@@ -491,7 +537,14 @@ const RiskResults = () => {
                   <span>Routing to Tumor Detection</span>
                   <span className="font-mono">{Math.round(transitionProgress)}%</span>
                 </div>
-                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                <div
+                  className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden"
+                  role="progressbar"
+                  aria-label="Stage 2 transition progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(transitionProgress)}
+                >
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-purple-400 to-red-400"
                     style={{ width: `${transitionProgress}%`, boxShadow: "0 0 12px rgba(168,85,247,0.6)" }}
