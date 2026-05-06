@@ -871,6 +871,11 @@ const RiskResults = () => {
             }}
           >
             <motion.div
+              ref={mediumModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="medium-risk-title"
+              aria-describedby="medium-risk-desc"
               initial={{ y: 80, opacity: 0, scale: 0.92 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 40, opacity: 0, scale: 0.95 }}
