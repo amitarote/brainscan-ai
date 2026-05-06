@@ -935,6 +935,8 @@ const RiskResults = () => {
                   Maybe Later
                 </Button>
                 <Button
+                  ref={mediumPrimaryBtnRef}
+                  aria-label="Proceed to Stage 2 Tumor Detection"
                   className="flex-1 gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-[0_0_20px_rgba(168,85,247,0.45)]"
                   onClick={() => {
                     setShowMediumModal(false);
