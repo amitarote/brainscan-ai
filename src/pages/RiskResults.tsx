@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -224,6 +224,46 @@ const RiskResults = () => {
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showMediumModal, setShowMediumModal] = useState(false);
+  const mediumModalRef = useRef<HTMLDivElement>(null);
+  const mediumPrimaryBtnRef = useRef<HTMLButtonElement>(null);
+  const mediumTriggerRef = useRef<HTMLElement | null>(null);
+
+  // A11y: Escape to close, focus trap, return focus to trigger on close
+  useEffect(() => {
+    if (!showMediumModal) return;
+    mediumTriggerRef.current = document.activeElement as HTMLElement;
+    const t = setTimeout(() => mediumPrimaryBtnRef.current?.focus(), 50);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setShowMediumModal(false);
+      } else if (e.key === "Tab" && mediumModalRef.current) {
+        const focusables = mediumModalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = prevOverflow;
+      mediumTriggerRef.current?.focus?.();
+    };
+  }, [showMediumModal]);
   const [gateTriggered, setGateTriggered] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
@@ -831,6 +871,11 @@ const RiskResults = () => {
             }}
           >
             <motion.div
+              ref={mediumModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="medium-risk-title"
+              aria-describedby="medium-risk-desc"
               initial={{ y: 80, opacity: 0, scale: 0.92 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 40, opacity: 0, scale: 0.95 }}
@@ -856,9 +901,9 @@ const RiskResults = () => {
               <button
                 onClick={() => setShowMediumModal(false)}
                 className="absolute top-3 right-3 h-8 w-8 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition flex items-center justify-center"
-                aria-label="Close"
+                aria-label="Close moderate risk dialog"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
 
               <motion.div
@@ -872,10 +917,10 @@ const RiskResults = () => {
               <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan-300/80 mb-2">
                 Moderate Risk · {riskScore.toFixed(2)}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 id="medium-risk-title" className="text-xl font-semibold text-white mb-2">
                 A confirmatory MRI is recommended
               </h3>
-              <p className="text-sm text-white/60 mb-6 leading-relaxed">
+              <p id="medium-risk-desc" className="text-sm text-white/60 mb-6 leading-relaxed">
                 Your score sits between 0.40 and 0.70. The AI Navigator suggests
                 proceeding to Stage 2 — Tumor Detection — to upload an MRI scan
                 for confirmation. There's no urgency; review your breakdown first if you'd like.
@@ -890,6 +935,8 @@ const RiskResults = () => {
                   Maybe Later
                 </Button>
                 <Button
+                  ref={mediumPrimaryBtnRef}
+                  aria-label="Proceed to Stage 2 Tumor Detection"
                   className="flex-1 gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 border-0 shadow-[0_0_20px_rgba(168,85,247,0.45)]"
                   onClick={() => {
                     setShowMediumModal(false);
