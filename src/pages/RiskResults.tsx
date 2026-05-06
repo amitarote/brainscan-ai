@@ -505,20 +505,21 @@ const RiskResults = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-400/90">
+                    <div id="high-risk-title" className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-400/90">
                       Auto-elevation engaged
                     </div>
-                    <div className="text-sm font-medium text-white">
+                    <div id="high-risk-desc" className="text-sm font-medium text-white">
                       High risk detected — entering Stage 2
                     </div>
                   </div>
                 </div>
                 <button
+                  ref={transitionCancelBtnRef}
                   onClick={() => setTransitioning(false)}
                   className="h-8 w-8 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors flex items-center justify-center"
-                  aria-label="Cancel auto-redirect"
+                  aria-label="Cancel automatic redirect to Stage 2"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </motion.div>
 
