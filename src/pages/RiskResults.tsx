@@ -588,7 +588,7 @@ const RiskResults = () => {
           <div className="flex items-center gap-3">
             <Brain className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">AI Risk Prediction Results</h1>
+              <h1 id="risk-results-title" tabIndex={-1} className="text-2xl md:text-3xl font-bold text-foreground outline-none">AI Risk Prediction Results</h1>
               <p className="text-muted-foreground">Powered by Dual-Stage Neural Network Analysis</p>
             </div>
           </div>
