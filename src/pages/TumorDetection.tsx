@@ -80,9 +80,19 @@ const TumorDetection = () => {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [pageVisible, setPageVisible] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setPageVisible(true), 50);
+    return () => clearTimeout(t);
+  }, []);
+
+  // A11y: when arriving at /tumor-detection (e.g. from the high-risk overlay),
+  // move focus to the page's main heading so keyboard/SR users get a clear anchor.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      headingRef.current?.focus({ preventScroll: false });
+    }, 120);
     return () => clearTimeout(t);
   }, []);
 
