@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,9 +80,19 @@ const TumorDetection = () => {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [pageVisible, setPageVisible] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setPageVisible(true), 50);
+    return () => clearTimeout(t);
+  }, []);
+
+  // A11y: when arriving at /tumor-detection (e.g. from the high-risk overlay),
+  // move focus to the page's main heading so keyboard/SR users get a clear anchor.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      headingRef.current?.focus({ preventScroll: false });
+    }, 120);
     return () => clearTimeout(t);
   }, []);
 
@@ -187,7 +197,7 @@ const TumorDetection = () => {
           <div className="flex items-center gap-3">
             <Brain className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Stage 2: Tumor Detection</h1>
+              <h1 ref={headingRef} tabIndex={-1} className="text-2xl md:text-3xl font-bold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded">Stage 2: Tumor Detection</h1>
               <p className="text-muted-foreground">Upload an MRI scan for AI-powered tumor analysis</p>
             </div>
           </div>
