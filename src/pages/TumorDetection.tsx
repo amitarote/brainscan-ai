@@ -197,7 +197,7 @@ const TumorDetection = () => {
           <div className="flex items-center gap-3">
             <Brain className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Stage 2: Tumor Detection</h1>
+              <h1 ref={headingRef} tabIndex={-1} className="text-2xl md:text-3xl font-bold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded">Stage 2: Tumor Detection</h1>
               <p className="text-muted-foreground">Upload an MRI scan for AI-powered tumor analysis</p>
             </div>
           </div>
