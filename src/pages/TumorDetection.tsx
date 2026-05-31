@@ -300,7 +300,7 @@ const TumorDetection = () => {
         </Card>
 
         {/* Results */}
-        {result && <DetectionResults result={result} image={image!} />}
+        {result && <DetectionResults result={result} fileName={fileName} niiBuffer={niiBuffer} />}
       </div>
     </div>
   );
