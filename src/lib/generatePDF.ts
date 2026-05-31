@@ -11,7 +11,7 @@ const drawHeader = (doc: jsPDF, title: string) => {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text("NeuroScan AI", 14, 16);
+  doc.text("OncoVision AI", 14, 16);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(title, 14, 24);
@@ -136,7 +136,7 @@ export const generateRiskPDF = (formData: {
   doc.text(lines, 18, y);
 
   drawFooter(doc, 1);
-  doc.save("NeuroScan_Risk_Report.pdf");
+  doc.save("OncoVision_Risk_Report.pdf");
 };
 
 export const generateTumorPDF = (result: {
@@ -209,5 +209,5 @@ export const generateTumorPDF = (result: {
   });
 
   drawFooter(doc, 1);
-  doc.save("NeuroScan_Tumor_Report.pdf");
+  doc.save("OncoVision_Tumor_Report.pdf");
 };

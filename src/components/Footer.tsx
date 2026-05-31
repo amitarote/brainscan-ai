@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-secondary-foreground">NeuroScan AI</span>
+              <span className="text-xl font-bold text-secondary-foreground">OncoVision AI</span>
             </div>
             <p className="text-secondary-foreground/70 max-w-md">
               Advancing brain cancer detection through innovative AI technology. 
@@ -39,7 +39,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-secondary-foreground/10 text-center">
           <p className="text-secondary-foreground/60 text-sm">
-            © 2026 NeuroScan AI. All rights reserved. FDA Cleared. HIPAA Compliant.
+            © 2026 OncoVision AI. All rights reserved. FDA Cleared. HIPAA Compliant.
           </p>
         </div>
       </div>

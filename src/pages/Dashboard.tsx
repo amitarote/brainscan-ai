@@ -26,11 +26,11 @@ const Dashboard = () => {
   const [tumorHistory, setTumorHistory] = useState<TumorRecord[]>(getTumorHistory());
 
   const clearRisk = () => {
-    localStorage.removeItem("neuroscan_risk_history");
+    localStorage.removeItem("oncovision_risk_history");
     setRiskHistory([]);
   };
   const clearTumor = () => {
-    localStorage.removeItem("neuroscan_tumor_history");
+    localStorage.removeItem("oncovision_tumor_history");
     setTumorHistory([]);
   };
 

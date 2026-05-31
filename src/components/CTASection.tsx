@@ -10,7 +10,7 @@ const CTASection = () => {
             Ready to Transform Patient Care?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join leading healthcare institutions using NeuroScan AI to improve 
+            Join leading healthcare institutions using OncoVision AI to improve 
             early detection rates and patient outcomes.
           </p>
 
@@ -26,18 +26,18 @@ const CTASection = () => {
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center items-center pt-8 border-t border-border">
             <a 
-              href="mailto:contact@neuroscan-ai.com" 
+              href="mailto:contact@oncovision-ai.com" 
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Mail className="h-5 w-5" />
-              <span>contact@neuroscan-ai.com</span>
+              <span>contact@oncovision-ai.com</span>
             </a>
             <a 
-              href="tel:+1-800-NEURO-AI" 
+              href="tel:+1-800-ONCO-AI" 
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Phone className="h-5 w-5" />
-              <span>1-800-NEURO-AI</span>
+              <span>1-800-ONCO-AI</span>
             </a>
           </div>
         </div>
