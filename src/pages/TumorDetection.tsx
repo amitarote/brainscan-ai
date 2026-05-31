@@ -339,7 +339,7 @@ const ConfidenceGauge = ({ value, danger }: { value: number; danger: boolean }) 
   );
 };
 
-const DetectionResults = ({ result, image }: { result: DetectionResult; image: string }) => {
+const DetectionResults = ({ result, fileName, niiBuffer }: { result: DetectionResult; fileName: string; niiBuffer: ArrayBuffer | null }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
