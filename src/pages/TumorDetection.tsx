@@ -29,6 +29,7 @@ import { generateTumorPDF } from "@/lib/generatePDF";
 import { saveTumorRecord } from "@/lib/history";
 import { useEffect } from "react";
 import { sayToNavigator } from "@/components/AINavigator";
+import NiftiSlice from "@/components/NiftiSlice";
 
 type DetectionResult = {
   tumorDetected: boolean;
