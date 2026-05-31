@@ -16,8 +16,8 @@ export interface TumorRecord {
   location: string;
 }
 
-const RISK_KEY = "neuroscan_risk_history";
-const TUMOR_KEY = "neuroscan_tumor_history";
+const RISK_KEY = "oncovision_risk_history";
+const TUMOR_KEY = "oncovision_tumor_history";
 
 export const saveRiskRecord = (record: Omit<RiskRecord, "id" | "date">) => {
   const history = getRiskHistory();
