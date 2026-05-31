@@ -112,8 +112,12 @@ const TumorDetection = () => {
     }
     setFileName(file.name);
     const reader = new FileReader();
-    reader.onload = (e) => setImage(e.target?.result as string);
-    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const buf = e.target?.result as ArrayBuffer;
+      setNiiBuffer(buf);
+      setImage(file.name); // sentinel: a file is loaded
+    };
+    reader.readAsArrayBuffer(file);
     setResult(null);
   }, []);
 
