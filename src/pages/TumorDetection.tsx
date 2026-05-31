@@ -185,6 +185,7 @@ const TumorDetection = () => {
 
   const clearImage = () => {
     setImage(null);
+    setNiiBuffer(null);
     setFileName("");
     setResult(null);
     setAnalyzing(false);
