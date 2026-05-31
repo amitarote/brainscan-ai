@@ -13,7 +13,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <a href="/" className="flex items-center gap-2">
             <Brain className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">NeuroScan AI</span>
+            <span className="text-xl font-bold text-foreground">OncoVision AI</span>
           </a>
 
           {/* Desktop Navigation */}
