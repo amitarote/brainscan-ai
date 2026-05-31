@@ -29,6 +29,7 @@ import { generateTumorPDF } from "@/lib/generatePDF";
 import { saveTumorRecord } from "@/lib/history";
 import { useEffect } from "react";
 import { sayToNavigator } from "@/components/AINavigator";
+import NiftiSlice from "@/components/NiftiSlice";
 
 type DetectionResult = {
   tumorDetected: boolean;
@@ -73,6 +74,7 @@ const mockDetection = (): DetectionResult => {
 
 const TumorDetection = () => {
   const [image, setImage] = useState<string | null>(null);
+  const [niiBuffer, setNiiBuffer] = useState<ArrayBuffer | null>(null);
   const [fileName, setFileName] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -110,8 +112,12 @@ const TumorDetection = () => {
     }
     setFileName(file.name);
     const reader = new FileReader();
-    reader.onload = (e) => setImage(e.target?.result as string);
-    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const buf = e.target?.result as ArrayBuffer;
+      setNiiBuffer(buf);
+      setImage(file.name); // sentinel: a file is loaded
+    };
+    reader.readAsArrayBuffer(file);
     setResult(null);
   }, []);
 
@@ -179,6 +185,7 @@ const TumorDetection = () => {
 
   const clearImage = () => {
     setImage(null);
+    setNiiBuffer(null);
     setFileName("");
     setResult(null);
     setAnalyzing(false);
@@ -293,7 +300,7 @@ const TumorDetection = () => {
         </Card>
 
         {/* Results */}
-        {result && <DetectionResults result={result} image={image!} />}
+        {result && <DetectionResults result={result} fileName={fileName} niiBuffer={niiBuffer} />}
       </div>
     </div>
   );
@@ -332,7 +339,7 @@ const ConfidenceGauge = ({ value, danger }: { value: number; danger: boolean }) 
   );
 };
 
-const DetectionResults = ({ result, image }: { result: DetectionResult; image: string }) => {
+const DetectionResults = ({ result, fileName, niiBuffer }: { result: DetectionResult; fileName: string; niiBuffer: ArrayBuffer | null }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
@@ -386,36 +393,18 @@ const DetectionResults = ({ result, image }: { result: DetectionResult; image: s
 
           {/* Viewer canvas */}
           <div className="relative aspect-[4/3] w-full bg-black overflow-hidden">
-            {/* Synthetic MRI brain rendering — .nii files aren't browser-renderable,
-                so we show a stylized axial slice as a visual stand-in for the demo. */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {/* Outer skull glow */}
-              <div className="absolute h-[78%] aspect-square rounded-[44%] bg-gradient-to-br from-zinc-700/40 via-zinc-800/60 to-black blur-md" />
-              {/* Brain silhouette */}
-              <div
-                className="relative h-[72%] aspect-square rounded-[42%] border border-white/10"
-                style={{
-                  background:
-                    "radial-gradient(circle at 35% 30%, rgba(180,180,200,0.55), rgba(80,80,100,0.35) 40%, rgba(20,20,30,0.9) 75%)",
-                  boxShadow:
-                    "inset 0 0 80px rgba(0,0,0,0.7), inset 0 0 30px rgba(120,140,180,0.15)",
-                }}
-              >
-                {/* Cortex folds — concentric rings */}
-                <div className="absolute inset-[8%] rounded-[40%] border border-white/8" />
-                <div className="absolute inset-[16%] rounded-[38%] border border-white/8" />
-                <div className="absolute inset-[26%] rounded-[36%] border border-white/6" />
-                {/* Central fissure */}
-                <div className="absolute top-[12%] bottom-[12%] left-1/2 w-px bg-white/15 -translate-x-1/2" />
-                {/* Ventricle silhouettes */}
-                <div className="absolute top-[42%] left-[38%] h-[14%] w-[10%] rounded-full bg-black/70 blur-[2px]" />
-                <div className="absolute top-[42%] right-[38%] h-[14%] w-[10%] rounded-full bg-black/70 blur-[2px]" />
+            {/* Real NIfTI slice — parsed client-side from the uploaded .nii/.nii.gz */}
+            {niiBuffer ? (
+              <NiftiSlice buffer={niiBuffer} fileName={fileName} brightness={1.1} />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">
+                No scan loaded
               </div>
-            </div>
+            )}
 
             {/* Filename badge — confirms which scan is being viewed */}
             <div className="absolute top-3 left-3 rounded-md border border-white/10 bg-black/60 backdrop-blur px-2.5 py-1 text-[10px] text-zinc-300 font-mono max-w-[55%] truncate">
-              {image ? "MRI · loaded" : "MRI"}
+              {fileName || "MRI"}
             </div>
 
             {/* Crosshair grid overlay */}
