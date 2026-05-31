@@ -74,6 +74,7 @@ const mockDetection = (): DetectionResult => {
 
 const TumorDetection = () => {
   const [image, setImage] = useState<string | null>(null);
+  const [niiBuffer, setNiiBuffer] = useState<ArrayBuffer | null>(null);
   const [fileName, setFileName] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
