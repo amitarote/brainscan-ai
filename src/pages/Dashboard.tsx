@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, ArrowLeft, Activity, ScanLine, ClipboardList, Trash2 } from "lucide-react";
-import { getRiskHistory, getTumorHistory, type RiskRecord, type TumorRecord } from "@/lib/history";
+import { getRiskHistory, getTumorHistory, RISK_KEY, TUMOR_KEY, type RiskRecord, type TumorRecord } from "@/lib/history";
 
 const riskColor = (level: string) => {
   if (level.includes("Critical")) return "text-red-500";
@@ -26,11 +26,11 @@ const Dashboard = () => {
   const [tumorHistory, setTumorHistory] = useState<TumorRecord[]>(getTumorHistory());
 
   const clearRisk = () => {
-    localStorage.removeItem("oncovision_risk_history");
+    sessionStorage.removeItem(RISK_KEY);
     setRiskHistory([]);
   };
   const clearTumor = () => {
-    localStorage.removeItem("oncovision_tumor_history");
+    sessionStorage.removeItem(TUMOR_KEY);
     setTumorHistory([]);
   };
 
