@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";

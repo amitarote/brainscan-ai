@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
