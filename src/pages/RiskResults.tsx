@@ -587,7 +587,7 @@ const RiskResults = () => {
                       <span
                         key={label}
                         className={`flex items-center gap-1.5 ${
-                          done ? "text-emerald-400" : active ? "text-cyan-300" : "text-white/30"
+                          done ? "text-emerald-400" : active ? "text-cyan-300" : "text-white/70"
                         }`}
                       >
                         <span
@@ -981,7 +981,7 @@ const RiskResults = () => {
 
               <button
                 onClick={() => setShowMediumModal(false)}
-                className="absolute top-3 right-3 h-8 w-8 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition flex items-center justify-center"
+                className="absolute top-3 right-3 h-8 w-8 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition flex items-center justify-center"
                 aria-label="Close moderate risk dialog"
               >
                 <X className="h-4 w-4" aria-hidden="true" />

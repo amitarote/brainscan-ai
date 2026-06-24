@@ -85,9 +85,9 @@ const ConfidenceGauge = ({ value }: { value: number }) => {
               style={{ color: ringStroke, textShadow: `0 0 12px ${ringStroke}80` }}
             >
               {Math.round(pct * 100)}
-              <span className="text-base text-white/60">%</span>
+              <span className="text-base text-white/80">%</span>
             </motion.span>
-            <span className="text-[9px] uppercase tracking-widest text-white/50 mt-0.5">
+            <span className="text-[9px] uppercase tracking-widest text-white/80 mt-0.5">
               {danger ? "High" : warn ? "Moderate" : "Low"}
             </span>
           </div>
@@ -138,12 +138,12 @@ const Stage2Viewer = ({
             Stage 2 · MRI Viewer
           </span>
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-white/50">
+        <div className="flex items-center gap-3 text-[10px] text-white/80">
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
             Heatmap active
           </span>
-          <span className="text-white/20">|</span>
+          <span className="text-white/40" aria-hidden="true">|</span>
           <span className="font-mono">CNN v2.1</span>
         </div>
       </motion.div>
