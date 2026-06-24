@@ -268,10 +268,12 @@ const TumorDetection = () => {
                     <p className="text-xs text-muted-foreground">NIfTI MRI file ready for analysis</p>
                   </div>
                   <button
+                    type="button"
                     onClick={clearImage}
+                    aria-label="Clear uploaded MRI image"
                     className="absolute top-3 right-3 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-destructive hover:text-destructive-foreground transition-colors"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
 

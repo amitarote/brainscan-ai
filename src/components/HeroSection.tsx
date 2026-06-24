@@ -10,6 +10,10 @@ const HeroSection = () => {
         <img
           src={heroBrainScan}
           alt="AI Brain Scan Visualization"
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/80 to-secondary/60" />
@@ -41,9 +45,11 @@ const HeroSection = () => {
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </a>
-            <Button size="lg" variant="outline" className="bg-secondary-foreground/10 border-secondary-foreground/20 text-secondary-foreground hover:bg-secondary-foreground/20">
-              Learn More
-            </Button>
+            <a href="#technology">
+              <Button size="lg" variant="outline" className="bg-secondary-foreground/10 border-secondary-foreground/20 text-secondary-foreground hover:bg-secondary-foreground/20">
+                Explore AI Technology
+              </Button>
+            </a>
           </div>
 
           <div className="flex flex-wrap gap-6">
