@@ -491,6 +491,11 @@ const RiskResults = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Risk Results — OncoVision AI"
+        description="Your Stage 1 brain cancer risk score, risk level, and next-step guidance from OncoVision AI."
+        path="/risk-results"
+      />
       {/* ────────────────────────────────────────────────────────────
           HIGH RISK (>0.7): Auto-elevation to Stage 2 — antigravity float
       ──────────────────────────────────────────────────────────── */}
