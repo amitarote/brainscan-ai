@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Patient Dashboard — OncoVision AI"
+        description="Review your session history of brain cancer risk assessments and MRI tumor detection runs."
+        path="/dashboard"
+      />
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4 py-6">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4">

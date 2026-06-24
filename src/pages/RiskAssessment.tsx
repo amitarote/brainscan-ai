@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,6 +109,18 @@ const RiskAssessment = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Risk Assessment — OncoVision AI"
+        description="Stage 1: complete the 13-factor questionnaire to estimate brain cancer risk using OncoVision AI's prediction model."
+        path="/risk-assessment"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "MedicalWebPage",
+          name: "Brain Cancer Risk Assessment",
+          url: "https://brain-tumor-ai.lovable.app/risk-assessment",
+          description: "13-factor AI-driven brain cancer risk questionnaire.",
+        }}
+      />
       {/* Header */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4 py-6">

@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -194,6 +195,18 @@ const TumorDetection = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Tumor Detection — OncoVision AI"
+        description="Stage 2: upload a NIfTI MRI scan for CNN-based brain tumor detection, with confidence, type, and location."
+        path="/tumor-detection"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "MedicalWebPage",
+          name: "AI MRI Brain Tumor Detection",
+          url: "https://brain-tumor-ai.lovable.app/tumor-detection",
+          description: "CNN-based MRI brain tumor detection tool.",
+        }}
+      />
       {/* Header */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4 py-6">
@@ -268,10 +281,12 @@ const TumorDetection = () => {
                     <p className="text-xs text-muted-foreground">NIfTI MRI file ready for analysis</p>
                   </div>
                   <button
+                    type="button"
                     onClick={clearImage}
+                    aria-label="Clear uploaded MRI image"
                     className="absolute top-3 right-3 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-destructive hover:text-destructive-foreground transition-colors"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
 

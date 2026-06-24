@@ -1,0 +1,13 @@
+# OncoVision AI
+
+> Dual-stage AI platform for brain cancer risk assessment and MRI tumor detection, designed to support clinicians with faster, more accurate diagnostics.
+
+OncoVision AI combines a Stage 1 risk-prediction model (built from 13 demographic, lifestyle, and clinical factors) with a Stage 2 CNN-based MRI tumor detection model. Results include a confidence score, tumor type, location, and a downloadable PDF report. Patient history is kept locally in the browser session and is never sent to a server.
+
+## Pages
+
+- [Home](/): Product overview, how the dual-stage AI works, and accuracy claims.
+- [Risk Assessment](/risk-assessment): Stage 1 — 13-factor brain cancer risk questionnaire.
+- [Risk Results](/risk-results): Stage 1 results, risk gauge, and gating into Stage 2.
+- [Tumor Detection](/tumor-detection): Stage 2 — upload a NIfTI MRI scan for CNN tumor detection.
+- [Dashboard](/dashboard): Session history of risk assessments and tumor detection runs.
